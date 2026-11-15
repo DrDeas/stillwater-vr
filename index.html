@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>Stillwater — a place to be still</title>
+    <meta name="description" content="A serene moonlit lake sanctuary for meditation. Works on screens and in VR headsets." />
+    <meta name="theme-color" content="#02030a" />
+    <link rel="stylesheet" href="css/style.css" />
+    <script type="importmap">
+      { "imports": { "three": "./vendor/three.module.min.js" } }
+    </script>
+  </head>
+  <body>
+    <div id="stage" aria-label="Moonlit lake scene"></div>
+
+    <section id="intro">
+      <div class="intro-card">
+        <p class="eyebrow">a place to be still</p>
+        <h1>Stillwater</h1>
+        <p class="lede">A moonlit lake, a stone circle, a blossom tree. Stay as long as you like.</p>
+        <div class="intro-actions">
+          <button id="begin" class="primary" type="button">Begin</button>
+          <button class="ghost" type="button" data-enter-vr hidden>Enter VR</button>
+        </div>
+        <p id="vr-note" class="note"></p>
+      </div>
+    </section>
+
+    <nav id="hud" class="hidden" aria-label="Settings">
+      <div class="group">
+        <span class="label">Soundscape</span>
+        <div id="soundscapes" class="chips"></div>
+      </div>
+      <div class="group">
+        <label class="label" for="volume">Volume</label>
+        <input id="volume" type="range" min="0" max="100" step="1" />
+      </div>
+      <div class="group">
+        <button id="breath" class="chip" type="button" aria-pressed="true">Breathing guide</button>
+        <button class="chip accent" type="button" data-enter-vr hidden>Enter VR</button>
+      </div>
+      <p class="hint">Drag to look around · W A S D to drift across the water</p>
+    </nav>
+
+    <script type="module" src="src/main.js"></script>
+  </body>
+</html>
