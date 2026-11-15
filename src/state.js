@@ -1,8 +1,8 @@
 // Tiny observable settings store shared by the page HUD, the in-VR menu and
 // the audio engine. Persists to localStorage when available.
 
-const KEY = 'stillwater.settings.v1';
-const defaults = { soundscape: 'lakeside', volume: 0.7, breath: true };
+const KEY = 'stillwater.settings.v2';
+const defaults = { soundscape: 'lakeside', volume: 0.7, breath: false };
 
 function load() {
   try {

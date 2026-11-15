@@ -32,7 +32,7 @@ void main() {
 `;
 
 export function createBreathGuide() {
-  const uniforms = { uBreath: { value: 0 }, uOn: { value: 1 } };
+  const uniforms = { uBreath: { value: 0 }, uOn: { value: 0 } };
   const mesh = new THREE.Mesh(
     new THREE.PlaneGeometry(1, 1),
     new THREE.ShaderMaterial({
@@ -49,8 +49,8 @@ export function createBreathGuide() {
   mesh.frustumCulled = false;
   mesh.renderOrder = 4;
 
-  let on = 1;
-  let target = 1;
+  let on = 0;
+  let target = 0;
   function update(dt, elapsed) {
     const cycle = BREATH.inhale + BREATH.exhale;
     const t = elapsed % cycle;
