@@ -20,10 +20,14 @@ Pick a scene from the bar at the bottom of the page, or from the panel in VR (gr
 | **Fractal Passage** | An endless shaft through a Menger sponge |
 | **Spiral Drift** | Coiling arms of stars streaming past |
 | **Kaleido Vortex** | A tunnel whose walls are a slowly morphing fractal |
+| **Into the Light** | A slow approach toward a radiant source, through shafts and halos of light |
+| **Lotus Mandala** | Great flowers of light that open, ring by ring, as you arrive |
+| **Hall of Light** | An endless vaulted nave of luminous arches over a mirror floor |
+| **Flower of Life** | Turning seals of interlocking circles and star figures |
 
 ![Spiral Drift](docs/journey.png)
 
-The last four are *journeys*: you are carried gently and endlessly forward while the
+All but the lake are *journeys*: you are carried gently and endlessly forward while the
 forms shift in colour and shape over time. They are real 3D geometry, so they have
 depth in a headset. Walking and teleporting are switched off during a journey, and a
 still ring stays at your feet as a fixed reference for comfort. If forward motion in
@@ -104,7 +108,7 @@ src/main.js           renderer, scene assembly, frame loop
 src/state.js          settings store (scene, soundscape, volume, breathing guide)
 src/scenes.js         scene manifest and switching
 src/world/            sky, water, mountains, platform, island + tree, flora, breathing guide
-src/journeys/         forward-flight scenes: prism gates, fractal passage, spiral drift, kaleido vortex
+src/journeys/         forward-flight scenes (one module each) and their shared parts
 src/xr/               teleport / glide / snap turn, in-VR settings panel
 src/ui/               screen controls and HUD
 src/audio/            soundscape manifest, audio engine, procedural generators

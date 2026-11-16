@@ -201,8 +201,9 @@ export class VRMenu {
     const COL_W = (W - 120) / 2;
     const list = (title, key, items, x) => {
       heading(title, x + 24, 78);
-      const rowH = Math.min(124, Math.floor(640 / items.length));
-      const h = rowH - 10;
+      const rowH = Math.min(124, Math.floor(650 / items.length));
+      const h = rowH - 8;
+      const compact = rowH < 92; // long lists: names only
       items.forEach((it, n) => {
         const y = 120 + n * rowH;
         const selected = state.get(key) === it.id;
@@ -223,10 +224,12 @@ export class VRMenu {
           }
           g.fillStyle = '#f2f6ff';
           g.font = '500 38px system-ui, sans-serif';
-          g.fillText(it.name, x + 86, y + h / 2 - 16);
-          g.fillStyle = 'rgba(200, 215, 245, 0.62)';
-          g.font = '400 24px system-ui, sans-serif';
-          g.fillText(it.description || '', x + 86, y + h / 2 + 24, COL_W - 110);
+          g.fillText(it.name, x + 86, y + h / 2 - (compact ? -2 : 16));
+          if (!compact) {
+            g.fillStyle = 'rgba(200, 215, 245, 0.62)';
+            g.font = '400 24px system-ui, sans-serif';
+            g.fillText(it.description || '', x + 86, y + h / 2 + 24, COL_W - 110);
+          }
         });
       });
     };

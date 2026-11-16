@@ -4,6 +4,10 @@ import { createPrism } from './journeys/prism.js';
 import { createMenger } from './journeys/menger.js';
 import { createSpiral } from './journeys/spiral.js';
 import { createKaleido } from './journeys/kaleido.js';
+import { createLight } from './journeys/light.js';
+import { createLotus } from './journeys/lotus.js';
+import { createHall } from './journeys/hall.js';
+import { createFlower } from './journeys/flower.js';
 
 // Scene manifest. The lake is the home scene; every entry with a `create`
 // function is a journey (see src/journeys/). Add one here and it appears in
@@ -17,6 +21,10 @@ export const SCENES = [
   { id: 'passage', name: 'Fractal Passage', description: 'An endless shaft through a Menger sponge', create: createMenger },
   { id: 'spiral', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },
   { id: 'vortex', name: 'Kaleido Vortex', description: 'A tunnel of ever-shifting fractal walls', create: createKaleido },
+  { id: 'light', name: 'Into the Light', description: 'A slow approach toward a radiant source', create: createLight },
+  { id: 'lotus', name: 'Lotus Mandala', description: 'Flowers of light that open as you arrive', create: createLotus },
+  { id: 'hall', name: 'Hall of Light', description: 'An endless vaulted nave of luminous arches', create: createHall },
+  { id: 'flower', name: 'Flower of Life', description: 'Turning seals of interlocking circles', create: createFlower },
 ];
 
 export const findScene = (id) => SCENES.find((s) => s.id === id) || SCENES[0];
