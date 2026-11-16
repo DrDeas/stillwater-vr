@@ -9,6 +9,30 @@ tree sheds petals on a nearby islet, lotus flowers drift on the water, and an au
 moves slowly over snow-capped mountains. A breathing guide hovers over the water, and
 selectable soundscapes fill the space.
 
+## Scenes
+
+Pick a scene from the bar at the bottom of the page, or from the panel in VR (grip).
+
+| | |
+|---|---|
+| **Stillwater Lake** | The home scene: explore it freely |
+| **Prism Gates** | Nested rings of glowing polygons twisting against each other |
+| **Fractal Passage** | An endless shaft through a Menger sponge |
+| **Spiral Drift** | Coiling arms of stars streaming past |
+| **Kaleido Vortex** | A tunnel whose walls are a slowly morphing fractal |
+
+![Spiral Drift](docs/journey.png)
+
+The last four are *journeys*: you are carried gently and endlessly forward while the
+forms shift in colour and shape over time. They are real 3D geometry, so they have
+depth in a headset. Walking and teleporting are switched off during a journey, and a
+still ring stays at your feet as a fixed reference for comfort. If forward motion in
+VR makes you queasy, sit down or return to the lake.
+
+To add a journey, write a module in `src/journeys/` that lays its elements along the
+z axis and wraps them with the shared `uTravel` uniform (see `prism.js` for the
+shortest example), then add one line to the manifest in `src/scenes.js`.
+
 ## Run it
 
 It is a static site with no build step.
@@ -32,7 +56,7 @@ Quest Browser, Pico, Vision Pro Safari, etc.) and press **Enter VR**.
 | **VR: trigger or pinch** | Hold to aim the arc, release to teleport (you can walk on the water) |
 | **VR: left thumbstick** | Glide slowly in the direction you are looking |
 | **VR: right thumbstick** | Snap turn |
-| **VR: grip** | Open / close the settings panel (soundscape, volume, breathing guide) |
+| **VR: grip** | Open / close the settings panel (scene, soundscape, volume, breathing guide) |
 | **VR: hands** | Pinch the small glowing orb floating at your lower left to open the panel |
 
 ## Adding soundscapes
@@ -77,8 +101,10 @@ Use recordings that loop seamlessly; switching soundscapes crossfades over a few
 index.html            page shell
 css/style.css         welcome veil and settings bar
 src/main.js           renderer, scene assembly, frame loop
-src/state.js          settings store (soundscape, volume, breathing guide)
+src/state.js          settings store (scene, soundscape, volume, breathing guide)
+src/scenes.js         scene manifest and switching
 src/world/            sky, water, mountains, platform, island + tree, flora, breathing guide
+src/journeys/         forward-flight scenes: prism gates, fractal passage, spiral drift, kaleido vortex
 src/xr/               teleport / glide / snap turn, in-VR settings panel
 src/ui/               screen controls and HUD
 src/audio/            soundscape manifest, audio engine, procedural generators

@@ -28,6 +28,10 @@
     </section>
 
     <nav id="hud" class="hidden" aria-label="Settings">
+      <div class="group wide">
+        <span class="label">Scene</span>
+        <div id="scenes" class="chips"></div>
+      </div>
       <div class="group">
         <span class="label">Soundscape</span>
         <div id="soundscapes" class="chips"></div>
@@ -40,7 +44,7 @@
         <button id="breath" class="chip" type="button" aria-pressed="false">Breathing guide</button>
         <button class="chip accent" type="button" data-enter-vr hidden>Enter VR</button>
       </div>
-      <p class="hint">Drag to look around · W A S D to drift across the water</p>
+      <p class="hint"><span class="lake-only">Drag to look around · W A S D to drift across the water</span><span class="journey-only">Drag to look around · the journey carries you forward</span></p>
     </nav>
 
     <script type="module" src="src/main.js"></script>

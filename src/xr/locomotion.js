@@ -23,6 +23,7 @@ export class Locomotion {
     this.rig = rig;
     this.camera = camera;
     this.menu = menu;
+    this.enabled = true; // false during journeys: no teleport or gliding
     this.aiming = null;
     this.hit = null;
     this.snapReady = true;
@@ -79,7 +80,7 @@ export class Locomotion {
       });
       c.addEventListener('selectstart', () => {
         if (this.menu.click(i)) return;
-        this.aiming = c;
+        if (this.enabled) this.aiming = c;
       });
       c.addEventListener('selectend', () => {
         if (this.aiming !== c) return;
@@ -99,16 +100,23 @@ export class Locomotion {
     this.marker.visible = false;
   }
 
-  /** Move the rig so the visitor's head ends up above `point`. */
-  teleport(point) {
+  /** Dip to black, run `fn`, and come back. */
+  fadeThrough(fn) {
     this.fade.target = 1;
     this.fade.then = () => {
+      fn();
+      this.fade.target = 0;
+    };
+  }
+
+  /** Move the rig so the visitor's head ends up above `point`. */
+  teleport(point) {
+    this.fadeThrough(() => {
       const head = this.camera.getWorldPosition(new THREE.Vector3());
       this.rig.position.x += point.x - head.x;
       this.rig.position.z += point.z - head.z;
       this.rig.position.y = groundHeight(point.x, point.z);
-      this.fade.target = 0;
-    };
+    });
   }
 
   #snapTurn(angle) {
@@ -206,11 +214,13 @@ export class Locomotion {
         }
       }
     }
+    if (this.aiming && !this.enabled) this.#stopAiming();
     if (this.aiming) this.#updateArc(this.aiming);
   }
 
   /** Glide relative to where the visitor is looking (strafe, forward in [-1, 1]). */
   glide(strafe, forward, dt, speed = GLIDE_SPEED) {
+    if (!this.enabled) return;
     const fwd = this.camera.getWorldDirection(new THREE.Vector3());
     fwd.y = 0;
     if (fwd.lengthSq() < 1e-4) return;

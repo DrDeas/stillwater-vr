@@ -2,7 +2,7 @@
 // the audio engine. Persists to localStorage when available.
 
 const KEY = 'stillwater.settings.v2';
-const defaults = { soundscape: 'lakeside', volume: 0.7, breath: false };
+const defaults = { scene: 'lake', soundscape: 'lakeside', volume: 0.7, breath: false };
 
 function load() {
   try {

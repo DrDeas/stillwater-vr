@@ -1,14 +1,16 @@
 import * as THREE from 'three';
 import { state } from '../state.js';
 import { SOUNDSCAPES } from '../audio/soundscapes.js';
+import { SCENES } from '../scenes.js';
 
 // In-headset settings panel, drawn on a canvas and pointed at with the
 // controller ray (or a hand pinch). A small "menu orb" floats near the visitor
 // so the panel can be opened without any buttons at all.
 
-const W = 1024;
+const W = 1536;
 const H = 1024;
-const SIZE = 0.72; // metres
+const SIZE_H = 0.72; // metres
+const SIZE_W = (SIZE_H * W) / H;
 
 export class VRMenu {
   constructor(scene, camera) {
@@ -22,7 +24,7 @@ export class VRMenu {
     this.texture.anisotropy = 4;
 
     this.panel = new THREE.Mesh(
-      new THREE.PlaneGeometry(SIZE, SIZE),
+      new THREE.PlaneGeometry(SIZE_W, SIZE_H),
       new THREE.MeshBasicMaterial({ map: this.texture, transparent: true, depthWrite: false, toneMapped: false })
     );
     this.panel.renderOrder = 20;
@@ -80,7 +82,7 @@ export class VRMenu {
     const fwd = this.camera.getWorldDirection(new THREE.Vector3());
     fwd.y = 0;
     fwd.normalize();
-    this.panel.position.copy(head).addScaledVector(fwd, 1.05);
+    this.panel.position.copy(head).addScaledVector(fwd, 1.2);
     this.panel.position.y -= 0.12;
     this.panel.lookAt(head.x, this.panel.position.y, head.z);
     this.panel.visible = true;
@@ -108,7 +110,7 @@ export class VRMenu {
         const px = hit.uv.x * W;
         const py = (1 - hit.uv.y) * H;
         hover = this.hits.find((b) => px >= b.x && px <= b.x + b.w && py >= b.y && py <= b.y + b.h) || 'panel';
-        this.cursor.position.set((hit.uv.x - 0.5) * SIZE, (hit.uv.y - 0.5) * SIZE, 0.002);
+        this.cursor.position.set((hit.uv.x - 0.5) * SIZE_W, (hit.uv.y - 0.5) * SIZE_H, 0.002);
         this.cursor.visible = true;
       }
     }
@@ -181,57 +183,60 @@ export class VRMenu {
     g.strokeStyle = 'rgba(160, 200, 255, 0.35)';
     g.lineWidth = 3;
     g.stroke();
-
     g.textBaseline = 'middle';
-    g.fillStyle = 'rgba(200, 220, 255, 0.6)';
-    g.font = '600 30px system-ui, sans-serif';
-    g.fillText('SOUNDSCAPE', 64, 78);
 
     // Rebuild hit boxes each draw; keep hover identity by matching ids.
     const prevHover = this.hover.map((h) => (h && h !== 'panel' ? h.id : h));
     const button = (id, x, y, w, h, action, paint) => {
-      const b = { id, x, y, w, h, action };
-      hits.push(b);
-      const isHover = prevHover.includes(id);
-      paint(isHover);
-      return b;
+      hits.push({ id, x, y, w, h, action });
+      paint(prevHover.includes(id));
+    };
+    const heading = (text, x, y) => {
+      g.fillStyle = 'rgba(200, 220, 255, 0.6)';
+      g.font = '600 30px system-ui, sans-serif';
+      g.fillText(text, x, y);
     };
 
-    let y = 120;
-    const rowH = Math.min(118, Math.floor(520 / SOUNDSCAPES.length));
-    for (const s of SOUNDSCAPES) {
-      const selected = state.get('soundscape') === s.id;
-      button(`scape:${s.id}`, 40, y, W - 80, rowH - 10, () => state.set('soundscape', s.id), (hov) => {
-        g.fillStyle = selected ? 'rgba(120, 180, 255, 0.26)' : hov ? 'rgba(255, 255, 255, 0.13)' : 'rgba(255, 255, 255, 0.05)';
-        roundRect(g, 40, y, W - 80, rowH - 10, 22);
-        g.fill();
-        g.beginPath();
-        g.arc(88, y + (rowH - 10) / 2, 13, 0, Math.PI * 2);
-        g.strokeStyle = 'rgba(200, 225, 255, 0.8)';
-        g.lineWidth = 3;
-        g.stroke();
-        if (selected) {
-          g.beginPath();
-          g.arc(88, y + (rowH - 10) / 2, 7, 0, Math.PI * 2);
-          g.fillStyle = '#cfe6ff';
+    // a column of radio rows bound to one settings key
+    const COL_W = (W - 120) / 2;
+    const list = (title, key, items, x) => {
+      heading(title, x + 24, 78);
+      const rowH = Math.min(124, Math.floor(640 / items.length));
+      const h = rowH - 10;
+      items.forEach((it, n) => {
+        const y = 120 + n * rowH;
+        const selected = state.get(key) === it.id;
+        button(`${key}:${it.id}`, x, y, COL_W, h, () => state.set(key, it.id), (hov) => {
+          g.fillStyle = selected ? 'rgba(120, 180, 255, 0.26)' : hov ? 'rgba(255, 255, 255, 0.13)' : 'rgba(255, 255, 255, 0.05)';
+          roundRect(g, x, y, COL_W, h, 22);
           g.fill();
-        }
-        g.fillStyle = '#f2f6ff';
-        g.font = '500 38px system-ui, sans-serif';
-        g.fillText(s.name, 126, y + (rowH - 10) / 2 - 16);
-        g.fillStyle = 'rgba(200, 215, 245, 0.62)';
-        g.font = '400 25px system-ui, sans-serif';
-        g.fillText(s.description || '', 126, y + (rowH - 10) / 2 + 24);
+          g.beginPath();
+          g.arc(x + 48, y + h / 2, 13, 0, Math.PI * 2);
+          g.strokeStyle = 'rgba(200, 225, 255, 0.8)';
+          g.lineWidth = 3;
+          g.stroke();
+          if (selected) {
+            g.beginPath();
+            g.arc(x + 48, y + h / 2, 7, 0, Math.PI * 2);
+            g.fillStyle = '#cfe6ff';
+            g.fill();
+          }
+          g.fillStyle = '#f2f6ff';
+          g.font = '500 38px system-ui, sans-serif';
+          g.fillText(it.name, x + 86, y + h / 2 - 16);
+          g.fillStyle = 'rgba(200, 215, 245, 0.62)';
+          g.font = '400 24px system-ui, sans-serif';
+          g.fillText(it.description || '', x + 86, y + h / 2 + 24, COL_W - 110);
+        });
       });
-      y += rowH;
-    }
+    };
+    list('SCENE', 'scene', SCENES, 40);
+    list('SOUNDSCAPE', 'soundscape', SOUNDSCAPES, 80 + COL_W);
 
-    // volume
-    y = 668;
-    g.fillStyle = 'rgba(200, 220, 255, 0.6)';
-    g.font = '600 30px system-ui, sans-serif';
-    g.fillText('VOLUME', 64, y);
-    y += 36;
+    // volume (left half of the bottom row)
+    let y = 808;
+    heading('VOLUME', 64, y);
+    y += 40;
     const vol = state.get('volume');
     const step = (d) => () => state.set('volume', Math.round(Math.max(0, Math.min(1, vol + d)) * 10) / 10);
     const round = (id, x, label, action) =>
@@ -246,33 +251,34 @@ export class VRMenu {
         g.textAlign = 'left';
       });
     round('vol-', 40, '−', step(-0.1));
-    round('vol+', W - 136, '+', step(0.1));
+    round('vol+', 40 + COL_W - 96, '+', step(0.1));
+    const barX = 160;
+    const barW = COL_W - 240;
     g.fillStyle = 'rgba(255, 255, 255, 0.12)';
-    roundRect(g, 168, y + 38, W - 336, 20, 10);
+    roundRect(g, barX, y + 38, barW, 20, 10);
     g.fill();
     if (vol > 0.01) {
       g.fillStyle = '#a9d2ff';
-      roundRect(g, 168, y + 38, (W - 336) * vol, 20, 10);
+      roundRect(g, barX, y + 38, barW * vol, 20, 10);
       g.fill();
     }
 
-    // breathing guide + close
-    y = 840;
-    const half = (W - 100) / 2;
+    // breathing guide + close (right half)
+    const half = (COL_W - 20) / 2;
     const pill = (id, x, label, on, action) =>
-      button(id, x, y, half, 110, action, (hov) => {
+      button(id, x, y, half, 96, action, (hov) => {
         g.fillStyle = on ? 'rgba(120, 180, 255, 0.26)' : hov ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.07)';
-        roundRect(g, x, y, half, 110, 30);
+        roundRect(g, x, y, half, 96, 30);
         g.fill();
         g.fillStyle = '#f2f6ff';
-        g.font = '500 34px system-ui, sans-serif';
+        g.font = '500 30px system-ui, sans-serif';
         g.textAlign = 'center';
-        g.fillText(label, x + half / 2, y + 57);
+        g.fillText(label, x + half / 2, y + 50, half - 24);
         g.textAlign = 'left';
       });
     const breath = state.get('breath');
-    pill('breath', 40, `Breathing guide: ${breath ? 'on' : 'off'}`, breath, () => state.set('breath', !breath));
-    pill('close', 60 + half, 'Close', false, () => this.close());
+    pill('breath', 80 + COL_W, `Breathing guide: ${breath ? 'on' : 'off'}`, breath, () => state.set('breath', !breath));
+    pill('close', 100 + COL_W + half, 'Close', false, () => this.close());
 
     // re-link hover references to the freshly built hit boxes
     this.hits = hits;

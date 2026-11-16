@@ -233,6 +233,19 @@ input[type='range'] {
   accent-color: var(--accent);
 }
 
+.group.wide {
+  flex-basis: 100%;
+}
+
+.journey-only,
+body.in-journey .lake-only {
+  display: none;
+}
+
+body.in-journey .journey-only {
+  display: inline;
+}
+
 .hint {
   flex-basis: 100%;
   margin: 0;

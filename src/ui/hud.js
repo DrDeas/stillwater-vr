@@ -1,5 +1,6 @@
 import { state } from '../state.js';
 import { SOUNDSCAPES } from '../audio/soundscapes.js';
+import { SCENES } from '../scenes.js';
 
 // Page-level interface: the welcome veil, the settings bar and the VR button.
 
@@ -14,20 +15,26 @@ export function createHud({ onBegin, onEnterVR }) {
   const vrButtons = [...document.querySelectorAll('[data-enter-vr]')];
   const vrNote = $('vr-note');
 
-  // --- soundscape chips
-  for (const s of SOUNDSCAPES) {
-    const b = document.createElement('button');
-    b.className = 'chip';
-    b.type = 'button';
-    b.textContent = s.name;
-    b.title = s.description || '';
-    b.dataset.id = s.id;
-    b.addEventListener('click', () => state.set('soundscape', s.id));
-    chips.appendChild(b);
-  }
+  // --- scene and soundscape chips
+  const sceneChips = $('scenes');
+  const fill = (box, items, key) => {
+    for (const s of items) {
+      const b = document.createElement('button');
+      b.className = 'chip';
+      b.type = 'button';
+      b.textContent = s.name;
+      b.title = s.description || '';
+      b.dataset.id = s.id;
+      b.addEventListener('click', () => state.set(key, s.id));
+      box.appendChild(b);
+    }
+  };
+  fill(sceneChips, SCENES, 'scene');
+  fill(chips, SOUNDSCAPES, 'soundscape');
 
   const sync = () => {
     for (const b of chips.children) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('soundscape')));
+    for (const b of sceneChips.children) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('scene')));
     volume.value = String(Math.round(state.get('volume') * 100));
     breath.setAttribute('aria-pressed', String(state.get('breath')));
   };

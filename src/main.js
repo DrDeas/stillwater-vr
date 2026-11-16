@@ -14,6 +14,7 @@ import { VRMenu } from './xr/vrmenu.js';
 import { DesktopControls } from './ui/desktop.js';
 import { createHud } from './ui/hud.js';
 import { state } from './state.js';
+import { SceneManager } from './scenes.js';
 
 const EYE_HEIGHT = 1.55; // flat-screen viewing height; a headset reports its own
 
@@ -45,22 +46,39 @@ const world = new THREE.Group();
 world.name = 'world';
 world.add(createMountains(), createPlatform(), createIsland(), createFlora(), breath.mesh);
 
-scene.add(sky.group, mirrorOf(world), water, world);
+const lake = new THREE.Group();
+lake.name = 'lake';
+lake.add(sky.group, mirrorOf(world), water, world);
+scene.add(lake);
 
 // --- systems ----------------------------------------------------------------
 const audio = new AudioEngine(camera);
 const menu = new VRMenu(scene, camera);
 const locomotion = new Locomotion({ renderer, scene, rig, camera, menu });
 const desktop = new DesktopControls({ dom: renderer.domElement, camera, locomotion, renderer });
+const scenes = new SceneManager({ scene, lake, rig, camera });
+
+// Journeys carry the visitor along; walking and teleporting belong to the lake.
+function showScene(id, fade = true) {
+  const apply = () => {
+    scenes.show(id);
+    locomotion.enabled = !scenes.inJourney;
+    document.body.classList.toggle('in-journey', scenes.inJourney);
+  };
+  if (fade) locomotion.fadeThrough(apply);
+  else apply();
+}
 
 const applyState = (key) => {
   if (key === 'volume') audio.setVolume(state.get('volume'));
   if (key === 'breath') breath.setEnabled(state.get('breath'));
   if (key === 'soundscape' && audio.unlocked) audio.setSoundscape(state.get('soundscape'));
+  if (key === 'scene') showScene(state.get('scene'));
 };
 state.subscribe(applyState);
 applyState('volume');
 applyState('breath');
+showScene(state.get('scene'), false);
 
 async function beginAudio() {
   await audio.unlock();
@@ -113,14 +131,17 @@ renderer.setAnimationLoop(() => {
   desktop.update(dt);
   locomotion.update(dt);
   menu.update(dt);
-  breath.update(dt, t);
-  sky.update(dt, t);
+  scenes.update(dt, t);
 
-  // sky and water travel with the visitor so the horizon never gets closer
-  rig.updateMatrixWorld();
-  camera.getWorldPosition(head);
-  sky.group.position.set(head.x, 0, head.z);
-  water.position.set(head.x, 0, head.z);
+  if (!scenes.inJourney) {
+    breath.update(dt, t);
+    sky.update(dt, t);
+    // sky and water travel with the visitor so the horizon never gets closer
+    rig.updateMatrixWorld();
+    camera.getWorldPosition(head);
+    sky.group.position.set(head.x, 0, head.z);
+    water.position.set(head.x, 0, head.z);
+  }
 
   // point sprites are sized in pixels: tell the shaders how tall an eye's view is
   if (renderer.xr.isPresenting) {
@@ -136,4 +157,4 @@ renderer.setAnimationLoop(() => {
 });
 
 // Handy for poking at things from the console.
-window.stillwater = { renderer, scene, camera, rig, audio, state, locomotion, menu, desktop };
+window.stillwater = { renderer, scene, camera, rig, audio, state, locomotion, menu, desktop, scenes };
