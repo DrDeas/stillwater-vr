@@ -27,6 +27,9 @@ export const SCENES = [
   { id: 'flower', name: 'Flower of Life', description: 'Turning seals of interlocking circles', create: createFlower },
 ];
 
+const LEVEL_BELOW = THREE.MathUtils.degToRad(28); // gaze lower than this: fly level
+const VERTICAL_ABOVE = THREE.MathUtils.degToRad(58); // gaze higher than this: fly straight up
+
 export const findScene = (id) => SCENES.find((s) => s.id === id) || SCENES[0];
 
 export class SceneManager {
@@ -44,7 +47,7 @@ export class SceneManager {
     this.root.visible = false;
     this.backdrop = createBackdrop();
     this.root.add(this.backdrop.group);
-    scene.add(this.root);
+    scene.add(this.root, this.backdrop.anchor);
   }
 
   get inJourney() {
@@ -61,6 +64,7 @@ export class SceneManager {
 
     if (!def.create) {
       this.root.visible = false;
+      this.backdrop.anchor.visible = false;
       this.lake.visible = true;
       return;
     }
@@ -72,15 +76,43 @@ export class SceneManager {
     this.active = this.built.get(def.id);
     this.active.group.visible = true;
 
-    // Centre the flight path on the visitor's head, heading where they look.
+    this.aim();
+    this.lake.visible = false;
+    this.root.visible = true;
+    this.backdrop.anchor.visible = true;
+  }
+
+  /**
+   * Centre the flight path on the visitor's head and point it where they are
+   * looking, so the journey suits any posture: forward when sitting or
+   * standing, straight up when lying down, in between when reclined.
+   * Near-level and near-vertical gazes snap, so a slightly tilted head does
+   * not give a slightly tilted path.
+   */
+  aim() {
+    if (!this.active) return;
     this.rig.updateMatrixWorld();
     const head = this.camera.getWorldPosition(new THREE.Vector3());
     const dir = this.camera.getWorldDirection(new THREE.Vector3());
+    const pitch = Math.asin(THREE.MathUtils.clamp(dir.y, -1, 1));
+    const up = new THREE.Vector3(0, 1, 0);
+
+    if (pitch < LEVEL_BELOW) {
+      dir.y = 0; // level (looking down also counts: the path never dives)
+      dir.normalize();
+    } else {
+      // The path's "up" follows the top of the visitor's head, so scenes with
+      // a floor sit the same way relative to the body as they do when upright.
+      up.set(0, 1, 0).applyQuaternion(this.camera.getWorldQuaternion(new THREE.Quaternion()));
+      if (pitch > VERTICAL_ABOVE) dir.set(0, 1, 0);
+      up.addScaledVector(dir, -up.dot(dir));
+      if (up.lengthSq() < 1e-4) up.set(0, 0, 1);
+      up.normalize();
+    }
+    this.direction = pitch < LEVEL_BELOW ? 'forward' : pitch > VERTICAL_ABOVE ? 'up' : 'reclined';
     this.root.position.copy(head);
-    this.root.rotation.y = Math.atan2(-dir.x, -dir.z);
-    this.backdrop.anchor.position.y = this.rig.position.y - head.y;
-    this.lake.visible = false;
-    this.root.visible = true;
+    this.root.quaternion.setFromRotationMatrix(new THREE.Matrix4().lookAt(new THREE.Vector3(), dir, up));
+    this.backdrop.anchor.position.set(head.x, this.rig.position.y + 0.01, head.z);
   }
 
   update(dt, t) {

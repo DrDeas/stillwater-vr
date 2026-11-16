@@ -124,7 +124,7 @@ export function createBackdrop() {
     new THREE.MeshBasicMaterial({ color: 0x9fdcff, transparent: true, opacity: 0.4, side: THREE.DoubleSide, depthWrite: false })
   );
   anchor.renderOrder = 8;
-  group.add(anchor);
+  anchor.visible = false; // lives in the scene, not the journey, so it stays on the real floor
 
   return { group, anchor };
 }

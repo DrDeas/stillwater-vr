@@ -13,7 +13,7 @@ import { Locomotion } from './xr/locomotion.js';
 import { VRMenu } from './xr/vrmenu.js';
 import { DesktopControls } from './ui/desktop.js';
 import { createHud } from './ui/hud.js';
-import { state } from './state.js';
+import { state, actions } from './state.js';
 import { SceneManager } from './scenes.js';
 
 const EYE_HEIGHT = 1.55; // flat-screen viewing height; a headset reports its own
@@ -74,6 +74,9 @@ const applyState = (key) => {
   if (key === 'breath') breath.setEnabled(state.get('breath'));
   if (key === 'soundscape' && audio.unlocked) audio.setSoundscape(state.get('soundscape'));
   if (key === 'scene') showScene(state.get('scene'));
+};
+actions.reaim = () => {
+  if (scenes.inJourney) locomotion.fadeThrough(() => scenes.aim());
 };
 state.subscribe(applyState);
 applyState('volume');

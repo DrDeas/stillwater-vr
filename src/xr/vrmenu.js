@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { state } from '../state.js';
+import { state, actions } from '../state.js';
 import { SOUNDSCAPES } from '../audio/soundscapes.js';
 import { SCENES } from '../scenes.js';
 
@@ -10,6 +10,7 @@ import { SCENES } from '../scenes.js';
 const W = 1536;
 const H = 1024;
 const SIZE_H = 0.72; // metres
+const STEEP = 0.6; // |gaze.y| beyond which the visitor is treated as lying back
 const SIZE_W = (SIZE_H * W) / H;
 
 export class VRMenu {
@@ -80,11 +81,19 @@ export class VRMenu {
   open() {
     const head = this.camera.getWorldPosition(new THREE.Vector3());
     const fwd = this.camera.getWorldDirection(new THREE.Vector3());
-    fwd.y = 0;
-    fwd.normalize();
-    this.panel.position.copy(head).addScaledVector(fwd, 1.2);
-    this.panel.position.y -= 0.12;
-    this.panel.lookAt(head.x, this.panel.position.y, head.z);
+    if (Math.abs(fwd.y) > STEEP) {
+      // lying back or looking well up: hang the panel straight along the gaze
+      this.panel.up.set(0, 1, 0).applyQuaternion(this.camera.getWorldQuaternion(new THREE.Quaternion()));
+      this.panel.position.copy(head).addScaledVector(fwd, 1.2);
+      this.panel.lookAt(head);
+    } else {
+      fwd.y = 0;
+      fwd.normalize();
+      this.panel.up.set(0, 1, 0);
+      this.panel.position.copy(head).addScaledVector(fwd, 1.2);
+      this.panel.position.y -= 0.12;
+      this.panel.lookAt(head.x, this.panel.position.y, head.z);
+    }
     this.panel.visible = true;
     this.draw();
   }
@@ -156,11 +165,20 @@ export class VRMenu {
   #placeOrb(snap, dt = 0) {
     const head = this.camera.getWorldPosition(new THREE.Vector3());
     const fwd = this.camera.getWorldDirection(new THREE.Vector3());
-    fwd.y = 0;
-    fwd.normalize();
-    const left = new THREE.Vector3(fwd.z, 0, -fwd.x);
-    const target = head.clone().addScaledVector(fwd, 0.55).addScaledVector(left, 0.38);
-    target.y = head.y - 0.48;
+    let target;
+    if (Math.abs(fwd.y) > STEEP) {
+      // lying back: keep the orb low-left in the visitor's own frame
+      const q = this.camera.getWorldQuaternion(new THREE.Quaternion());
+      const right = new THREE.Vector3(1, 0, 0).applyQuaternion(q);
+      const up = new THREE.Vector3(0, 1, 0).applyQuaternion(q);
+      target = head.clone().addScaledVector(fwd, 0.55).addScaledVector(right, -0.38).addScaledVector(up, -0.4);
+    } else {
+      fwd.y = 0;
+      fwd.normalize();
+      const left = new THREE.Vector3(fwd.z, 0, -fwd.x);
+      target = head.clone().addScaledVector(fwd, 0.55).addScaledVector(left, 0.38);
+      target.y = head.y - 0.48;
+    }
     if (snap) return this.orb.position.copy(target);
     const d = this.orb.position.distanceTo(target);
     if (d > 0.3 || this.following) {
@@ -280,7 +298,12 @@ export class VRMenu {
         g.textAlign = 'left';
       });
     const breath = state.get('breath');
-    pill('breath', 80 + COL_W, `Breathing guide: ${breath ? 'on' : 'off'}`, breath, () => state.set('breath', !breath));
+    if (state.get('scene') === 'lake') {
+      pill('breath', 80 + COL_W, `Breathing guide: ${breath ? 'on' : 'off'}`, breath, () => state.set('breath', !breath));
+    } else {
+      // journeys: point the path wherever you are looking (e.g. after lying down)
+      pill('reaim', 80 + COL_W, 'Re-aim path', false, () => actions.reaim());
+    }
     pill('close', 100 + COL_W + half, 'Close', false, () => this.close());
 
     // re-link hover references to the freshly built hit boxes

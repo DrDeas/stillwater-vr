@@ -41,10 +41,11 @@
         <input id="volume" type="range" min="0" max="100" step="1" />
       </div>
       <div class="group">
-        <button id="breath" class="chip" type="button" aria-pressed="false">Breathing guide</button>
+        <button id="breath" class="chip lake-only" type="button" aria-pressed="false">Breathing guide</button>
+        <button id="reaim" class="chip journey-only" type="button" title="Point the journey where you are looking: forward, or straight up if you are lying down">Re-aim path</button>
         <button class="chip accent" type="button" data-enter-vr hidden>Enter VR</button>
       </div>
-      <p class="hint"><span class="lake-only">Drag to look around · W A S D to drift across the water</span><span class="journey-only">Drag to look around · the journey carries you forward</span></p>
+      <p class="hint"><span class="lake-only">Drag to look around · W A S D to drift across the water</span><span class="journey-only">The journey follows your gaze · look up and press Re-aim path to rise instead</span></p>
     </nav>
 
     <script type="module" src="src/main.js"></script>

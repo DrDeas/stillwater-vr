@@ -1,4 +1,4 @@
-import { state } from '../state.js';
+import { state, actions } from '../state.js';
 import { SOUNDSCAPES } from '../audio/soundscapes.js';
 import { SCENES } from '../scenes.js';
 
@@ -43,6 +43,7 @@ export function createHud({ onBegin, onEnterVR }) {
 
   volume.addEventListener('input', () => state.set('volume', Number(volume.value) / 100));
   breath.addEventListener('click', () => state.set('breath', !state.get('breath')));
+  $('reaim').addEventListener('click', () => actions.reaim());
 
   // --- begin
   let begun = false;

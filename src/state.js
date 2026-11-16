@@ -12,6 +12,11 @@ function load() {
   }
 }
 
+/** One-shot commands that are not settings. main.js fills these in. */
+export const actions = {
+  reaim() {}, // point the current journey where the visitor is looking
+};
+
 const values = load();
 const listeners = new Set();
 

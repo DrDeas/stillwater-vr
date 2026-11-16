@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import { groundHeight, WORLD_RADIUS } from '../world/terrain.js';
+import { actions } from '../state.js';
 
 // Moving through the sanctuary in a headset.
 //
@@ -7,6 +8,7 @@ import { groundHeight, WORLD_RADIUS } from '../world/terrain.js';
 //   left thumbstick                        glide slowly, relative to your gaze
 //   right thumbstick left / right          snap turn
 //   grip / squeeze                         open the settings panel
+//   thumbstick click                       re-aim a journey where you look
 //
 // Comfort first: teleports dip through a brief fade, gliding is slow, turning
 // is snapped. The visitor may walk on the water anywhere inside WORLD_RADIUS.
@@ -200,6 +202,9 @@ export class Locomotion {
 
       // thumbsticks
       const pad = c.userData.source?.gamepad;
+      const click = !!pad?.buttons[3]?.pressed;
+      if (click && !c.userData.click) actions.reaim();
+      c.userData.click = click;
       if (pad && pad.axes.length >= 2) {
         const ax = pad.axes.length >= 4 ? pad.axes[2] : pad.axes[0];
         const ay = pad.axes.length >= 4 ? pad.axes[3] : pad.axes[1];

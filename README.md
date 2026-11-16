@@ -33,6 +33,12 @@ depth in a headset. Walking and teleporting are switched off during a journey, a
 still ring stays at your feet as a fixed reference for comfort. If forward motion in
 VR makes you queasy, sit down or return to the lake.
 
+**Sitting or lying down.** A journey points wherever you are looking when it starts:
+level if you are sitting or standing, straight up if you are lying on your back, and
+along your gaze if you are reclined. If you change position, look where you want to
+travel and choose **Re-aim path** (in the bar, in the VR panel, or by clicking a
+thumbstick).
+
 To add a journey, write a module in `src/journeys/` that lays its elements along the
 z axis and wraps them with the shared `uTravel` uniform (see `prism.js` for the
 shortest example), then add one line to the manifest in `src/scenes.js`.
@@ -60,6 +66,7 @@ Quest Browser, Pico, Vision Pro Safari, etc.) and press **Enter VR**.
 | **VR: trigger or pinch** | Hold to aim the arc, release to teleport (you can walk on the water) |
 | **VR: left thumbstick** | Glide slowly in the direction you are looking |
 | **VR: right thumbstick** | Snap turn |
+| **VR: thumbstick click** | In a journey: re-aim the path where you are looking |
 | **VR: grip** | Open / close the settings panel (scene, soundscape, volume, breathing guide) |
 | **VR: hands** | Pinch the small glowing orb floating at your lower left to open the panel |
 
