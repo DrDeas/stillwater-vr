@@ -1,0 +1,40 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0b0f2e"/>
+      <stop offset="0.58" stop-color="#2a2462"/>
+      <stop offset="0.585" stop-color="#151a44"/>
+      <stop offset="1" stop-color="#05071a"/>
+    </linearGradient>
+    <radialGradient id="halo" cx="0.5" cy="0.5" r="0.5">
+      <stop offset="0" stop-color="#bcd6ff" stop-opacity="0.55"/>
+      <stop offset="0.45" stop-color="#8fb0ff" stop-opacity="0.18"/>
+      <stop offset="1" stop-color="#8fb0ff" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="orb" cx="0.42" cy="0.38" r="0.65">
+      <stop offset="0" stop-color="#fffdf6"/>
+      <stop offset="0.7" stop-color="#f3ecdc"/>
+      <stop offset="1" stop-color="#d9d2f2"/>
+    </radialGradient>
+    <linearGradient id="refl" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#f3ecdc" stop-opacity="0.75"/>
+      <stop offset="1" stop-color="#f3ecdc" stop-opacity="0.08"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <rect width="512" height="512" fill="url(#sky)"/>
+    <g transform="translate(256 256) scale(0.78) translate(-256 -256)">
+      <circle cx="256" cy="196" r="150" fill="url(#halo)"/>
+      <circle cx="256" cy="196" r="84" fill="url(#orb)"/>
+      <!-- reflection: the orb mirrored below the waterline, broken by ripples -->
+      <g fill="url(#refl)">
+        <rect x="190" y="316" width="132" height="15" rx="7.5"/>
+        <rect x="200" y="345" width="112" height="13" rx="6.5"/>
+        <rect x="216" y="372" width="80" height="11" rx="5.5"/>
+        <rect x="234" y="396" width="44" height="9" rx="4.5"/>
+      </g>
+      <rect x="96" y="296" width="320" height="5" rx="2.5" fill="#c9dcff" opacity="0.8"/>
+    </g>
+  </g>
+</svg>
