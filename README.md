@@ -1,10 +1,11 @@
 # Stillwater
 
-A serene moonlit lake sanctuary for meditation, built for the web and for VR headsets.
+A personal sanctuary for meditation, on screen and in VR headsets: a moonlit lake to rest
+beside, and immersive journeys of light, fractals and sacred geometry.
 
 ![Stillwater](docs/preview.png)
 
-A stone circle rests on a mirror-still lake. Lanterns flicker at its rim, a blossom
+In the home scene, a stone circle rests on a mirror-still lake. Lanterns flicker at its rim, a blossom
 tree sheds petals on a nearby islet, lotus flowers drift on the water, and an aurora
 moves slowly over snow-capped mountains. A breathing guide hovers over the water, and
 selectable soundscapes fill the space.
