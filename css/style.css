@@ -335,6 +335,7 @@ body.in-vr #scene-picker {
 }
 
 .journey-only,
+body.in-place #breath,
 body.in-journey .lake-only {
   display: none;
 }

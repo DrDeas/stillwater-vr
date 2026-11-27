@@ -26,6 +26,7 @@ export class Locomotion {
     this.camera = camera;
     this.menu = menu;
     this.enabled = true; // false during journeys: no teleport or gliding
+    this.ground = { height: groundHeight, radius: WORLD_RADIUS }; // swapped when the scene changes
     this.aiming = null;
     this.hit = null;
     this.snapReady = true;
@@ -117,7 +118,7 @@ export class Locomotion {
       const head = this.camera.getWorldPosition(new THREE.Vector3());
       this.rig.position.x += point.x - head.x;
       this.rig.position.z += point.z - head.z;
-      this.rig.position.y = groundHeight(point.x, point.z);
+      this.rig.position.y = this.ground.height(point.x, point.z);
     });
   }
 
@@ -144,12 +145,12 @@ export class Locomotion {
     let n = 0;
     for (; n < ARC_POINTS; n++) {
       this.arcPositions.set([p.x, p.y, p.z], n * 3);
-      const g = groundHeight(p.x, p.z);
+      const g = this.ground.height(p.x, p.z);
       if (n > 0 && p.y <= g) {
-        const g0 = groundHeight(prev.x, prev.z);
+        const g0 = this.ground.height(prev.x, prev.z);
         const t = (prev.y - g0) / (prev.y - g0 - (p.y - g) || 1);
         hit = prev.clone().lerp(p, THREE.MathUtils.clamp(t, 0, 1));
-        hit.y = groundHeight(hit.x, hit.z);
+        hit.y = this.ground.height(hit.x, hit.z);
         this.arcPositions.set([hit.x, hit.y, hit.z], n * 3);
         n++;
         break;
@@ -158,7 +159,7 @@ export class Locomotion {
       p.addScaledVector(vel, dt);
       vel.y -= GRAVITY * dt;
     }
-    if (hit && Math.hypot(hit.x, hit.z) > WORLD_RADIUS) hit = null;
+    if (hit && Math.hypot(hit.x, hit.z) > this.ground.radius) hit = null;
     this.arc.geometry.setDrawRange(0, n);
     this.arc.geometry.attributes.position.needsUpdate = true;
     this.arc.visible = true;
@@ -235,12 +236,12 @@ export class Locomotion {
     p.z += (fwd.z * forward + fwd.x * strafe) * speed * dt;
     const head = this.camera.getWorldPosition(new THREE.Vector3());
     const r = Math.hypot(head.x, head.z);
-    if (r > WORLD_RADIUS) {
-      const k = WORLD_RADIUS / r;
+    if (r > this.ground.radius) {
+      const k = this.ground.radius / r;
       p.x += head.x * k - head.x;
       p.z += head.z * k - head.z;
     }
-    const target = groundHeight(head.x, head.z);
+    const target = this.ground.height(head.x, head.z);
     p.y += (target - p.y) * Math.min(1, dt * 6);
   }
 }

@@ -59,11 +59,15 @@ const desktop = new DesktopControls({ dom: renderer.domElement, camera, locomoti
 const scenes = new SceneManager({ scene, lake, rig, camera });
 
 // Journeys carry the visitor along; walking and teleporting belong to the lake.
+const lakeGround = locomotion.ground;
 function showScene(id, fade = true) {
   const apply = () => {
     scenes.show(id);
     locomotion.enabled = !scenes.inJourney;
+    locomotion.ground = scenes.ground || lakeGround;
+    if (scenes.place) desktop.yaw = 0; // face the way the place is meant to be entered
     document.body.classList.toggle('in-journey', scenes.inJourney);
+    document.body.classList.toggle('in-place', !!scenes.place);
   };
   if (fade) locomotion.fadeThrough(apply);
   else apply();
@@ -136,7 +140,7 @@ renderer.setAnimationLoop(() => {
   menu.update(dt);
   scenes.update(dt, t);
 
-  if (!scenes.inJourney) {
+  if (scenes.atLake) {
     breath.update(dt, t);
     sky.update(dt, t);
     // sky and water travel with the visitor so the horizon never gets closer

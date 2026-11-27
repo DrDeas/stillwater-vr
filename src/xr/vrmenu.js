@@ -7,12 +7,34 @@ import { SCENES } from '../scenes.js';
 // controller ray (or a hand pinch). A small "menu orb" floats near the visitor
 // so the panel can be opened without any buttons at all.
 
-const W = 1536;
-// The panel grows with the scene list so the names never shrink.
-const COLS = SCENES.length > 36 ? 4 : 3;
-const ROWS = Math.ceil(SCENES.length / COLS);
-const CELL_H = 58;
-const H = Math.max(1000, 92 + ROWS * CELL_H + 310);
+const W = 1920;
+const COLS = 5;
+const CELL_H = 54;
+
+// Scenes are listed under the same category headings as the page's picker.
+// Entries flow down each column in turn; a heading never sits alone at the
+// foot of a column, and the panel grows as tall as the list needs.
+const ENTRIES = [];
+{
+  let group = null;
+  for (const s of SCENES) {
+    if (s.group !== group) ENTRIES.push({ heading: (group = s.group) });
+    ENTRIES.push({ scene: s });
+  }
+}
+function flow(rows) {
+  const cols = [[]];
+  for (const e of ENTRIES) {
+    let col = cols[cols.length - 1];
+    if (col.length >= rows || (e.heading && col.length >= rows - 1)) cols.push((col = []));
+    col.push(e);
+  }
+  return cols;
+}
+let ROWS = Math.ceil(ENTRIES.length / COLS);
+while (flow(ROWS).length > COLS) ROWS++;
+const COLUMNS = flow(ROWS);
+const H = Math.max(1000, 60 + ROWS * CELL_H + 300);
 const SIZE_H = (0.72 * H) / 1000; // metres
 const STEEP = 0.6; // |gaze.y| beyond which the visitor is treated as lying back
 const SIZE_W = (SIZE_H * W) / H;
@@ -219,30 +241,38 @@ export class VRMenu {
       g.fillText(text, x, y);
     };
 
-    // scenes: a grid of names, three across
+    // scenes, by category
     const COL_W = (W - 120) / 2;
-    heading('SCENE', 64, 62);
     const rows = ROWS;
+    const top = 44;
     const cellW = (W - 80 - (COLS - 1) * 14) / COLS;
     const cellH = CELL_H;
-    SCENES.forEach((it, n) => {
-      // fill down each column so related scenes stay together
-      const x = 40 + Math.floor(n / rows) * (cellW + 14);
-      const y = 92 + (n % rows) * cellH;
-      const h = cellH - 8;
-      const selected = state.get('scene') === it.id;
-      button(`scene:${it.id}`, x, y, cellW, h, () => state.set('scene', it.id), (hov) => {
-        g.fillStyle = selected ? 'rgba(120, 180, 255, 0.30)' : hov ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
-        roundRect(g, x, y, cellW, h, 16);
-        g.fill();
-        g.fillStyle = selected ? '#ffffff' : '#e6edff';
-        g.font = `${selected ? 600 : 500} ${Math.min(32, h - 18)}px system-ui, sans-serif`;
-        g.fillText(it.name, x + 22, y + h / 2 + 2, cellW - 40);
+    COLUMNS.forEach((col, c) => {
+      const x = 40 + c * (cellW + 14);
+      col.forEach((entry, r) => {
+        const y = top + r * cellH;
+        const h = cellH - 8;
+        if (entry.heading) {
+          g.fillStyle = 'rgba(190, 215, 255, 0.72)';
+          g.font = '600 24px system-ui, sans-serif';
+          g.fillText(entry.heading.toUpperCase(), x + 6, y + h / 2 + 8, cellW - 12);
+          return;
+        }
+        const it = entry.scene;
+        const selected = state.get('scene') === it.id;
+        button(`scene:${it.id}`, x, y, cellW, h, () => state.set('scene', it.id), (hov) => {
+          g.fillStyle = selected ? 'rgba(120, 180, 255, 0.30)' : hov ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+          roundRect(g, x, y, cellW, h, 14);
+          g.fill();
+          g.fillStyle = selected ? '#ffffff' : '#e6edff';
+          g.font = `${selected ? 600 : 500} 29px system-ui, sans-serif`;
+          g.fillText(it.name, x + 20, y + h / 2 + 2, cellW - 36);
+        });
       });
     });
 
     // soundscapes: one row of pills
-    const sy = 92 + rows * cellH + 44;
+    const sy = top + rows * cellH + 50;
     heading('SOUNDSCAPE', 64, sy - 26);
     const sw = (W - 80 - (SOUNDSCAPES.length - 1) * 14) / SOUNDSCAPES.length;
     SOUNDSCAPES.forEach((it, n) => {
@@ -303,9 +333,10 @@ export class VRMenu {
         g.textAlign = 'left';
       });
     const breath = state.get('breath');
-    if (state.get('scene') === 'lake') {
+    const here = SCENES.find((sc) => sc.id === state.get('scene')) || SCENES[0];
+    if (here.id === 'lake') {
       pill('breath', 80 + COL_W, `Breathing guide: ${breath ? 'on' : 'off'}`, breath, () => state.set('breath', !breath));
-    } else {
+    } else if (here.create) {
       // journeys: point the path wherever you are looking (e.g. after lying down)
       pill('reaim', 80 + COL_W, 'Re-aim path', false, () => actions.reaim());
     }

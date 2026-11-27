@@ -10,6 +10,10 @@ import { createHall } from './journeys/hall.js';
 import { createFlower } from './journeys/flower.js';
 import { createStarfield } from './journeys/starfield.js';
 import { createRain } from './journeys/rain.js';
+import {
+  createDock, createBeach, createChalet, createCabin, createGarden, createAutumn,
+  createFarm, createAmalfi, createLavender, createWaterfall, createOrbital,
+} from './places/nature.js';
 import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire, createLava } from './journeys/walls.js';
 import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons, createPolymorph } from './journeys/solids.js';
@@ -29,6 +33,17 @@ import {
 
 export const SCENES = [
   { id: 'lake', group: 'Sanctuary', name: 'Stillwater Lake', description: 'Moonlit water, lanterns and a blossom tree' },
+  { id: 'dock', group: 'Sanctuary', name: 'Dock at Dusk', description: 'A wooden dock on a still lake under a pink sky', place: createDock },
+  { id: 'beach', group: 'Sanctuary', name: 'Sunset Beach', description: 'Warm sand, leaning palms and a low sun', place: createBeach },
+  { id: 'chalet', group: 'Sanctuary', name: 'Mountain Chalet', description: 'A snowbound chalet high above a valley', place: createChalet },
+  { id: 'cabin', group: 'Sanctuary', name: 'Quiet Cabin', description: 'A log cabin in a pine clearing, a fire going', place: createCabin },
+  { id: 'garden', group: 'Sanctuary', name: 'Japanese Garden', description: 'A pond, an arched bridge, lanterns and maples', place: createGarden },
+  { id: 'autumn', group: 'Sanctuary', name: 'Autumn Forest', description: 'A path through tall trees in full colour', place: createAutumn },
+  { id: 'farm', group: 'Sanctuary', name: 'Golden Farm', description: 'Striped fields, a red barn and a turning windmill', place: createFarm },
+  { id: 'amalfi', group: 'Sanctuary', name: 'Amalfi Terrace', description: 'A cliff terrace above pastel houses and blue sea', place: createAmalfi },
+  { id: 'lavender', group: 'Sanctuary', name: 'Lavender Hills', description: 'Purple rows at sunrise, balloons adrift', place: createLavender },
+  { id: 'waterfall', group: 'Sanctuary', name: 'Waterfall Grotto', description: 'A jungle pool beneath a tall fall', place: createWaterfall },
+  { id: 'orbital', group: 'Sanctuary', name: 'Orbital Lounge', description: 'An observation deck above a turning blue world', place: createOrbital },
 
   { id: 'stars', group: 'Screensaver classics', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
   { id: 'rain', group: 'Screensaver classics', name: 'Glyph Rain', description: 'Columns of falling code on every side', create: createRain },
@@ -104,7 +119,10 @@ export class SceneManager {
     this.rig = rig;
     this.camera = camera;
     this.currentId = 'lake';
-    this.active = null; // the running journey, or null at the lake
+    this.scene = scene;
+    this.active = null; // the running journey, if any
+    this.place = null; // the explorable place being visited, if any (other than the lake)
+    this.lakePose = null; // where the visitor was standing at the lake
     this.built = new Map();
 
     // Journeys live in one root that is placed around the visitor on entry.
@@ -120,18 +138,49 @@ export class SceneManager {
     return this.active !== null;
   }
 
+  get atLake() {
+    return !this.active && !this.place;
+  }
+
+  /** The walkable surface of the current scene, or null for the lake's own. */
+  get ground() {
+    return this.place ? this.place.ground : null;
+  }
+
   /** Swap scenes immediately (wrap in a fade for a gentle transition). */
   show(id) {
     const def = findScene(id);
     if (def.id === this.currentId) return;
+    if (this.atLake) this.lakePose = { p: this.rig.position.clone(), r: this.rig.rotation.y };
     this.currentId = def.id;
     if (this.active) this.active.group.visible = false;
+    if (this.place) this.place.group.visible = false;
     this.active = null;
+    this.place = null;
+    this.root.visible = false;
+    this.backdrop.anchor.visible = false;
 
+    if (def.place) {
+      // an explorable place: build it on first visit and stand the visitor at its entrance
+      if (!this.built.has(def.id)) {
+        const pl = def.place();
+        this.scene.add(pl.group);
+        this.built.set(def.id, pl);
+      }
+      this.place = this.built.get(def.id);
+      this.place.group.visible = true;
+      this.lake.visible = false;
+      const [x, z, yaw] = this.place.spawn;
+      this.rig.position.set(x, this.place.ground.height(x, z), z);
+      this.rig.rotation.y = yaw || 0;
+      return;
+    }
     if (!def.create) {
-      this.root.visible = false;
-      this.backdrop.anchor.visible = false;
       this.lake.visible = true;
+      if (this.lakePose) {
+        this.rig.position.copy(this.lakePose.p);
+        this.rig.rotation.y = this.lakePose.r;
+      }
       return;
     }
     if (!this.built.has(def.id)) {
@@ -182,6 +231,10 @@ export class SceneManager {
   }
 
   update(dt, t) {
+    if (this.place) {
+      this.place.update(dt, t, this.camera.getWorldPosition(new THREE.Vector3()));
+      return;
+    }
     if (!this.active) return;
     journey.uTravel.value += this.active.speed * dt;
     this.active.update?.(dt, t);
