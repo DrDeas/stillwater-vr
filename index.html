@@ -64,9 +64,11 @@
     </section>
 
     <nav id="hud" class="hidden" aria-label="Settings">
-      <div class="group wide">
+      <div class="group">
         <span class="label">Scene</span>
-        <div id="scenes" class="chips"></div>
+        <button id="scene-prev" class="chip round" type="button" aria-label="Previous scene">&#8249;</button>
+        <button id="scene-current" class="chip current" type="button" aria-haspopup="dialog" aria-expanded="false"></button>
+        <button id="scene-next" class="chip round" type="button" aria-label="Next scene">&#8250;</button>
       </div>
       <div class="group">
         <span class="label">Soundscape</span>
@@ -83,6 +85,11 @@
       </div>
       <p class="hint"><span class="lake-only">Drag to look around · W A S D to drift across the water</span><span class="journey-only">The journey follows your gaze · look up and press Re-aim path to rise instead</span></p>
     </nav>
+
+    <section id="scene-picker" class="hidden" role="dialog" aria-label="Choose a scene">
+      <div id="scenes"></div>
+      <p class="caution">The hypnotic scenes use strong, constantly moving patterns. If you are sensitive to such patterns, or start to feel dizzy or unwell, look away and return to Stillwater Lake.</p>
+    </section>
 
     <script type="module" src="src/main.js"></script>
   </body>

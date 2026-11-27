@@ -8,7 +8,7 @@ import { SCENES } from '../scenes.js';
 // so the panel can be opened without any buttons at all.
 
 const W = 1536;
-const H = 1024;
+const H = 1000;
 const SIZE_H = 0.72; // metres
 const STEEP = 0.6; // |gaze.y| beyond which the visitor is treated as lying back
 const SIZE_W = (SIZE_H * W) / H;
@@ -215,49 +215,51 @@ export class VRMenu {
       g.fillText(text, x, y);
     };
 
-    // a column of radio rows bound to one settings key
+    // scenes: a grid of names, three across
     const COL_W = (W - 120) / 2;
-    const list = (title, key, items, x) => {
-      heading(title, x + 24, 78);
-      const rowH = Math.min(124, Math.floor(650 / items.length));
-      const h = rowH - 8;
-      const compact = rowH < 92; // long lists: names only
-      items.forEach((it, n) => {
-        const y = 120 + n * rowH;
-        const selected = state.get(key) === it.id;
-        button(`${key}:${it.id}`, x, y, COL_W, h, () => state.set(key, it.id), (hov) => {
-          g.fillStyle = selected ? 'rgba(120, 180, 255, 0.26)' : hov ? 'rgba(255, 255, 255, 0.13)' : 'rgba(255, 255, 255, 0.05)';
-          roundRect(g, x, y, COL_W, h, 22);
-          g.fill();
-          g.beginPath();
-          g.arc(x + 48, y + h / 2, 13, 0, Math.PI * 2);
-          g.strokeStyle = 'rgba(200, 225, 255, 0.8)';
-          g.lineWidth = 3;
-          g.stroke();
-          if (selected) {
-            g.beginPath();
-            g.arc(x + 48, y + h / 2, 7, 0, Math.PI * 2);
-            g.fillStyle = '#cfe6ff';
-            g.fill();
-          }
-          g.fillStyle = '#f2f6ff';
-          g.font = '500 38px system-ui, sans-serif';
-          g.fillText(it.name, x + 86, y + h / 2 - (compact ? -2 : 16));
-          if (!compact) {
-            g.fillStyle = 'rgba(200, 215, 245, 0.62)';
-            g.font = '400 24px system-ui, sans-serif';
-            g.fillText(it.description || '', x + 86, y + h / 2 + 24, COL_W - 110);
-          }
-        });
+    heading('SCENE', 64, 62);
+    const COLS = 3;
+    const rows = Math.ceil(SCENES.length / COLS);
+    const cellW = (W - 80 - (COLS - 1) * 14) / COLS;
+    const cellH = Math.min(70, Math.floor(600 / rows));
+    SCENES.forEach((it, n) => {
+      // fill down each column so related scenes stay together
+      const x = 40 + Math.floor(n / rows) * (cellW + 14);
+      const y = 92 + (n % rows) * cellH;
+      const h = cellH - 8;
+      const selected = state.get('scene') === it.id;
+      button(`scene:${it.id}`, x, y, cellW, h, () => state.set('scene', it.id), (hov) => {
+        g.fillStyle = selected ? 'rgba(120, 180, 255, 0.30)' : hov ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+        roundRect(g, x, y, cellW, h, 16);
+        g.fill();
+        g.fillStyle = selected ? '#ffffff' : '#e6edff';
+        g.font = `${selected ? 600 : 500} ${Math.min(32, h - 18)}px system-ui, sans-serif`;
+        g.fillText(it.name, x + 22, y + h / 2 + 2, cellW - 40);
       });
-    };
-    list('SCENE', 'scene', SCENES, 40);
-    list('SOUNDSCAPE', 'soundscape', SOUNDSCAPES, 80 + COL_W);
+    });
+
+    // soundscapes: one row of pills
+    const sy = 92 + rows * cellH + 44;
+    heading('SOUNDSCAPE', 64, sy - 26);
+    const sw = (W - 80 - (SOUNDSCAPES.length - 1) * 14) / SOUNDSCAPES.length;
+    SOUNDSCAPES.forEach((it, n) => {
+      const x = 40 + n * (sw + 14);
+      const selected = state.get('soundscape') === it.id;
+      button(`soundscape:${it.id}`, x, sy, sw, 66, () => state.set('soundscape', it.id), (hov) => {
+        g.fillStyle = selected ? 'rgba(120, 180, 255, 0.30)' : hov ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
+        roundRect(g, x, sy, sw, 66, 20);
+        g.fill();
+        g.fillStyle = '#f2f6ff';
+        g.font = '500 30px system-ui, sans-serif';
+        g.textAlign = 'center';
+        g.fillText(it.name, x + sw / 2, sy + 35, sw - 30);
+        g.textAlign = 'left';
+      });
+    });
 
     // volume (left half of the bottom row)
-    let y = 808;
-    heading('VOLUME', 64, y);
-    y += 40;
+    let y = sy + 66 + 50;
+    heading('VOLUME', 64, y - 26);
     const vol = state.get('volume');
     const step = (d) => () => state.set('volume', Math.round(Math.max(0, Math.min(1, vol + d)) * 10) / 10);
     const round = (id, x, label, action) =>

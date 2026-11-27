@@ -15,26 +15,69 @@ export function createHud({ onBegin, onEnterVR }) {
   const vrButtons = [...document.querySelectorAll('[data-enter-vr]')];
   const vrNote = $('vr-note');
 
-  // --- scene and soundscape chips
-  const sceneChips = $('scenes');
-  const fill = (box, items, key) => {
-    for (const s of items) {
-      const b = document.createElement('button');
-      b.className = 'chip';
-      b.type = 'button';
-      b.textContent = s.name;
-      b.title = s.description || '';
-      b.dataset.id = s.id;
-      b.addEventListener('click', () => state.set(key, s.id));
-      box.appendChild(b);
+  // --- soundscape chips
+  for (const s of SOUNDSCAPES) {
+    const b = document.createElement('button');
+    b.className = 'chip';
+    b.type = 'button';
+    b.textContent = s.name;
+    b.title = s.description || '';
+    b.dataset.id = s.id;
+    b.addEventListener('click', () => state.set('soundscape', s.id));
+    chips.appendChild(b);
+  }
+
+  // --- scene picker: the bar shows the current scene; the full list opens above it
+  const picker = $('scene-picker');
+  const sceneList = $('scenes');
+  const current = $('scene-current');
+  const sceneButtons = [];
+  let lastGroup = null;
+  let grid = null;
+  for (const s of SCENES) {
+    if (s.group !== lastGroup) {
+      const h = document.createElement('h2');
+      h.textContent = s.group;
+      grid = document.createElement('div');
+      grid.className = 'scene-grid';
+      sceneList.append(h, grid);
+      lastGroup = s.group;
     }
+    const b = document.createElement('button');
+    b.className = 'scene';
+    b.type = 'button';
+    b.dataset.id = s.id;
+    b.innerHTML = '<strong></strong><span></span>';
+    b.firstChild.textContent = s.name;
+    b.lastChild.textContent = s.description || '';
+    b.addEventListener('click', () => {
+      state.set('scene', s.id);
+      openPicker(false);
+    });
+    grid.appendChild(b);
+    sceneButtons.push(b);
+  }
+  const openPicker = (open) => {
+    // sit just above the bar, however tall the bar is on this screen
+    if (open) picker.style.bottom = `${window.innerHeight - hud.getBoundingClientRect().top + 10}px`;
+    picker.classList.toggle('hidden', !open);
+    current.setAttribute('aria-expanded', String(open));
+    if (open) sceneButtons.find((b) => b.dataset.id === state.get('scene'))?.focus();
   };
-  fill(sceneChips, SCENES, 'scene');
-  fill(chips, SOUNDSCAPES, 'soundscape');
+  current.addEventListener('click', () => openPicker(picker.classList.contains('hidden')));
+  window.addEventListener('keydown', (e) => e.key === 'Escape' && openPicker(false));
+  document.getElementById('stage').addEventListener('pointerdown', () => openPicker(false));
+  const step = (d) => {
+    const i = SCENES.findIndex((s) => s.id === state.get('scene'));
+    state.set('scene', SCENES[(i + d + SCENES.length) % SCENES.length].id);
+  };
+  $('scene-prev').addEventListener('click', () => step(-1));
+  $('scene-next').addEventListener('click', () => step(1));
 
   const sync = () => {
     for (const b of chips.children) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('soundscape')));
-    for (const b of sceneChips.children) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('scene')));
+    for (const b of sceneButtons) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('scene')));
+    current.textContent = (SCENES.find((sc) => sc.id === state.get('scene')) || SCENES[0]).name;
     volume.value = String(Math.round(state.get('volume') * 100));
     breath.setAttribute('aria-pressed', String(state.get('breath')));
   };
@@ -87,7 +130,8 @@ export function createHud({ onBegin, onEnterVR }) {
     hud.classList.remove('idle');
     clearTimeout(idle);
     idle = setTimeout(() => {
-      if (!hud.matches(':hover') && !hud.contains(document.activeElement)) hud.classList.add('idle');
+      const busy = hud.matches(':hover') || hud.contains(document.activeElement) || !picker.classList.contains('hidden');
+      if (!busy) hud.classList.add('idle');
       else wake();
     }, 5000);
   }

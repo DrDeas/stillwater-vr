@@ -233,6 +233,103 @@ input[type='range'] {
   accent-color: var(--accent);
 }
 
+.chip.round {
+  padding: 0.3rem 0.7rem;
+  font-size: 1.1rem;
+  line-height: 1;
+}
+
+.chip.current {
+  min-width: 11rem;
+  background: rgba(169, 210, 255, 0.24);
+  border-color: rgba(169, 210, 255, 0.7);
+}
+
+.chip.current::after {
+  content: '\25BE';
+  margin-left: 0.5rem;
+  opacity: 0.7;
+}
+
+/* ---- scene picker ------------------------------------------------------- */
+
+#scene-picker {
+  position: fixed;
+  left: 50%;
+  bottom: 10rem; /* set precisely when opened */
+  transform: translateX(-50%);
+  width: min(62rem, calc(100vw - 24px));
+  top: 12px;
+  overflow-y: auto;
+  padding: 0.4rem 1.2rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(8, 11, 30, 0.82);
+  backdrop-filter: blur(18px) saturate(1.2);
+  transition: opacity 0.3s ease, visibility 0.3s;
+}
+
+#scene-picker.hidden,
+body.in-vr #scene-picker {
+  opacity: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+#scene-picker .caution {
+  margin: 1.1rem 0 0;
+  font-size: 0.74rem;
+  line-height: 1.5;
+  color: var(--ink-soft);
+}
+
+#scene-picker h2 {
+  margin: 1rem 0 0.5rem;
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+.scene-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(13.5rem, 1fr));
+  gap: 0.5rem;
+}
+
+.scene {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  padding: 0.6rem 0.8rem;
+  text-align: left;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: rgba(255, 255, 255, 0.04);
+  transition: background 0.25s, border-color 0.25s;
+}
+
+.scene:hover {
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.scene[aria-pressed='true'] {
+  background: rgba(169, 210, 255, 0.22);
+  border-color: rgba(169, 210, 255, 0.7);
+}
+
+.scene strong {
+  font-weight: 500;
+  font-size: 0.92rem;
+}
+
+.scene span {
+  font-size: 0.74rem;
+  line-height: 1.3;
+  color: var(--ink-soft);
+}
+
 .group.wide {
   flex-basis: 100%;
 }

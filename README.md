@@ -12,20 +12,63 @@ selectable soundscapes fill the space.
 
 ## Scenes
 
-Pick a scene from the bar at the bottom of the page, or from the panel in VR (grip).
+Pick a scene from the bar at the bottom of the page (the arrows step through them; the
+name opens the full list), or from the panel in VR (grip).
+
+**Sanctuary**
 
 | | |
 |---|---|
 | **Stillwater Lake** | The home scene: explore it freely |
+
+**Stars and geometry**
+
+| | |
+|---|---|
+| **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
 | **Prism Gates** | Nested rings of glowing polygons twisting against each other |
 | **Fractal Passage** | An endless shaft through a Menger sponge |
 | **Spiral Drift** | Coiling arms of stars streaming past |
 | **Kaleido Vortex** | A tunnel whose walls are a slowly morphing fractal |
+
+**Light**
+
+| | |
+|---|---|
 | **Into the Light** | A slow approach toward a radiant source, through shafts and halos of light |
 | **Lotus Mandala** | Great flowers of light that open, ring by ring, as you arrive |
 | **Hall of Light** | An endless vaulted nave of luminous arches over a mirror floor |
 | **Flower of Life** | Turning seals of interlocking circles and star figures |
-| **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
+
+**Hypnotic**
+
+| | |
+|---|---|
+| **Liquid Rainbow** | Colours folding over each other like oil on water |
+| **Hypno Spiral** | Broad spiral arms winding down the tunnel |
+| **Op-Art Warp** | A black and white chequerboard that swells and pinches |
+| **Moiré Waves** | Two sets of fine lines sliding across each other, raising broad fringes |
+| **Honeycomb Hive** | Hexagonal cells lighting up in slow travelling waves |
+| **Stained Glass** | Drifting cells of colour held in dark leading |
+| **Labyrinth Flow** | Endless interlocking arcs with light running along them |
+| **Slit-Scan Gate** | Four walls of streaming colour meeting at a vanishing point |
+| **Wormhole** | A tube of light that snakes away ahead of you |
+| **Neon Horizon** | A glowing grid rolling over a valley toward a striped sun |
+
+**Forms in motion**
+
+| | |
+|---|---|
+| **Gyro Rings** | Paired hoops rocking against each other like a gyroscope |
+| **Silk Ribbons** | Long bands of colour weaving and twisting around you |
+| **Cube Swarm** | Hundreds of tumbling, breathing cubes |
+| **Sierpinski Drift** | Fractal pyramids made of pyramids made of pyramids |
+| **Crystal Cavern** | A throat of iridescent crystal shards |
+| **Monolith Grove** | Ranks of tall slabs rising and falling in waves |
+| **Double Helix** | Twin strands of light and their rungs coiling around you |
+| **Spirograph** | Looping curves that slowly redraw themselves |
+| **Bloom Bursts** | Seeds of light that open into dandelion heads as you reach them |
+| **Jellyfish Deep** | Luminous jellyfish pulsing through dark water |
 
 ![Spiral Drift](docs/journey.png)
 
@@ -35,15 +78,24 @@ depth in a headset. Walking and teleporting are switched off during a journey, a
 still ring stays at your feet as a fixed reference for comfort. If forward motion in
 VR makes you queasy, sit down or return to the lake.
 
+**A caution.** The hypnotic scenes use strong, constantly moving patterns. Nothing
+flashes or strobes, but if you are sensitive to such patterns, or begin to feel dizzy
+or unwell, look away and return to Stillwater Lake.
+
 **Sitting or lying down.** A journey points wherever you are looking when it starts:
 level if you are sitting or standing, straight up if you are lying on your back, and
 along your gaze if you are reclined. If you change position, look where you want to
 travel and choose **Re-aim path** (in the bar, in the VR panel, or by clicking a
 thumbstick).
 
-To add a journey, write a module in `src/journeys/` that lays its elements along the
-z axis and wraps them with the shared `uTravel` uniform (see `prism.js` for the
-shortest example), then add one line to the manifest in `src/scenes.js`.
+To add a journey, add one line to the manifest in `src/scenes.js` pointing at a
+function that returns a group and a speed. Most scenes are a few lines of shader in
+one of four small families, each of which handles the endless wrapping for you:
+
+- `walls.js` — a tube painted by a fragment shader (Hypno Spiral, Stained Glass, ...)
+- `solids.js` — many copies of one 3D shape, placed by a vertex shader (Gyro Rings, Crystal Cavern, ...)
+- `particles.js` — forms drawn in points of light (Double Helix, Jellyfish Deep, ...)
+- `planes.js` — open scenes built from flat sheets (Neon Horizon, Slit-Scan Gate, Wormhole)
 
 ## Run it
 

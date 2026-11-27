@@ -28,6 +28,18 @@ vec3 pal(float t) {
 vec3 aura(float t) {
   return vec3(0.80, 0.68, 0.72) + vec3(0.20, 0.25, 0.28) * cos(6.28318 * (t + vec3(0.0, 0.15, 0.55)));
 }
+float hash11(float n) { return fract(sin(n * 127.1) * 43758.5453); }
+float hash21(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
+vec2 hash22(vec2 p) {
+  return fract(sin(vec2(dot(p, vec2(127.1, 311.7)), dot(p, vec2(269.5, 183.3)))) * 43758.5453);
+}
+mat3 rotAxis(vec3 a, float ang) {
+  float c = cos(ang), s = sin(ang), o = 1.0 - c;
+  return mat3(
+    o * a.x * a.x + c,       o * a.x * a.y + a.z * s, o * a.z * a.x - a.y * s,
+    o * a.x * a.y - a.z * s, o * a.y * a.y + c,       o * a.y * a.z + a.x * s,
+    o * a.z * a.x + a.y * s, o * a.y * a.z - a.x * s, o * a.z * a.z + c);
+}
 float wrapZ(float z0, float halfLen) {
   return mod(z0 + uTravel + halfLen, 2.0 * halfLen) - halfLen;
 }

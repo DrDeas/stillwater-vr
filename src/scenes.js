@@ -9,6 +9,10 @@ import { createLotus } from './journeys/lotus.js';
 import { createHall } from './journeys/hall.js';
 import { createFlower } from './journeys/flower.js';
 import { createStarfield } from './journeys/starfield.js';
+import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire } from './journeys/walls.js';
+import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
+import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons } from './journeys/solids.js';
+import { createHelix, createSpiro, createBursts, createJelly } from './journeys/particles.js';
 
 // Scene manifest. The lake is the home scene; every entry with a `create`
 // function is a journey (see src/journeys/). Add one here and it appears in
@@ -17,16 +21,40 @@ import { createStarfield } from './journeys/starfield.js';
 //   create() -> { group: THREE.Group, speed: metres per second, update?(dt, t) }
 
 export const SCENES = [
-  { id: 'lake', name: 'Stillwater Lake', description: 'Moonlit water, lanterns and a blossom tree' },
-  { id: 'prism', name: 'Prism Gates', description: 'Turning rings of light, one inside another', create: createPrism },
-  { id: 'passage', name: 'Fractal Passage', description: 'An endless shaft through a Menger sponge', create: createMenger },
-  { id: 'spiral', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },
-  { id: 'vortex', name: 'Kaleido Vortex', description: 'A tunnel of ever-shifting fractal walls', create: createKaleido },
-  { id: 'light', name: 'Into the Light', description: 'A slow approach toward a radiant source', create: createLight },
-  { id: 'lotus', name: 'Lotus Mandala', description: 'Flowers of light that open as you arrive', create: createLotus },
-  { id: 'hall', name: 'Hall of Light', description: 'An endless vaulted nave of luminous arches', create: createHall },
-  { id: 'flower', name: 'Flower of Life', description: 'Turning seals of interlocking circles', create: createFlower },
-  { id: 'stars', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
+  { id: 'lake', group: 'Sanctuary', name: 'Stillwater Lake', description: 'Moonlit water, lanterns and a blossom tree' },
+
+  { id: 'stars', group: 'Stars and geometry', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
+  { id: 'prism', group: 'Stars and geometry', name: 'Prism Gates', description: 'Turning rings of light, one inside another', create: createPrism },
+  { id: 'passage', group: 'Stars and geometry', name: 'Fractal Passage', description: 'An endless shaft through a Menger sponge', create: createMenger },
+  { id: 'spiral', group: 'Stars and geometry', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },
+  { id: 'vortex', group: 'Stars and geometry', name: 'Kaleido Vortex', description: 'A tunnel of ever-shifting fractal walls', create: createKaleido },
+
+  { id: 'light', group: 'Light', name: 'Into the Light', description: 'A slow approach toward a radiant source', create: createLight },
+  { id: 'lotus', group: 'Light', name: 'Lotus Mandala', description: 'Flowers of light that open as you arrive', create: createLotus },
+  { id: 'hall', group: 'Light', name: 'Hall of Light', description: 'An endless vaulted nave of luminous arches', create: createHall },
+  { id: 'flower', group: 'Light', name: 'Flower of Life', description: 'Turning seals of interlocking circles', create: createFlower },
+
+  { id: 'plasma', group: 'Hypnotic', name: 'Liquid Rainbow', description: 'Colours folding over each other like oil on water', create: createPlasma },
+  { id: 'hypno', group: 'Hypnotic', name: 'Hypno Spiral', description: 'Broad spiral arms winding down the tunnel', create: createHypno },
+  { id: 'opart', group: 'Hypnotic', name: 'Op-Art Warp', description: 'A chequerboard that swells and pinches', create: createOpArt },
+  { id: 'moire', group: 'Hypnotic', name: 'Moir\u00e9 Waves', description: 'Sliding stripes raising slow beats of colour', create: createMoire },
+  { id: 'hive', group: 'Hypnotic', name: 'Honeycomb Hive', description: 'Hexagonal cells lighting in travelling waves', create: createHive },
+  { id: 'glass', group: 'Hypnotic', name: 'Stained Glass', description: 'Drifting cells of colour in dark leading', create: createGlass },
+  { id: 'truchet', group: 'Hypnotic', name: 'Labyrinth Flow', description: 'Interlocking arcs with light running along them', create: createTruchet },
+  { id: 'slit', group: 'Hypnotic', name: 'Slit-Scan Gate', description: 'Walls of streaming colour meeting at infinity', create: createSlit },
+  { id: 'wormhole', group: 'Hypnotic', name: 'Wormhole', description: 'A tube of light that snakes away ahead of you', create: createWormhole },
+  { id: 'neon', group: 'Hypnotic', name: 'Neon Horizon', description: 'A glowing grid rolling toward a striped sun', create: createNeon },
+
+  { id: 'gyro', group: 'Forms in motion', name: 'Gyro Rings', description: 'Paired hoops rocking like a gyroscope', create: createGyro },
+  { id: 'ribbons', group: 'Forms in motion', name: 'Silk Ribbons', description: 'Bands of colour weaving and twisting around you', create: createRibbons },
+  { id: 'cubes', group: 'Forms in motion', name: 'Cube Swarm', description: 'Hundreds of tumbling, breathing cubes', create: createCubes },
+  { id: 'sierpinski', group: 'Forms in motion', name: 'Sierpinski Drift', description: 'Fractal pyramids made of pyramids', create: createSierpinski },
+  { id: 'crystal', group: 'Forms in motion', name: 'Crystal Cavern', description: 'A throat of iridescent crystal shards', create: createCrystal },
+  { id: 'pillars', group: 'Forms in motion', name: 'Monolith Grove', description: 'Ranks of tall slabs rising and falling in waves', create: createPillars },
+  { id: 'helix', group: 'Forms in motion', name: 'Double Helix', description: 'Twin strands of light coiling around you', create: createHelix },
+  { id: 'spiro', group: 'Forms in motion', name: 'Spirograph', description: 'Looping curves that redraw themselves', create: createSpiro },
+  { id: 'bursts', group: 'Forms in motion', name: 'Bloom Bursts', description: 'Seeds of light opening into dandelion heads', create: createBursts },
+  { id: 'jelly', group: 'Forms in motion', name: 'Jellyfish Deep', description: 'Luminous jellyfish pulsing through dark water', create: createJelly },
 ];
 
 const LEVEL_BELOW = THREE.MathUtils.degToRad(28); // gaze lower than this: fly level
