@@ -21,11 +21,17 @@ name opens the full list), or from the panel in VR (grip).
 |---|---|
 | **Stillwater Lake** | The home scene: explore it freely |
 
-**Stars and geometry**
+**Screensaver classics**
 
 | | |
 |---|---|
 | **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
+| **Glyph Rain** | Falling code in depth: a forest of columns of flickering green characters |
+
+**Stars and geometry**
+
+| | |
+|---|---|
 | **Prism Gates** | Nested rings of glowing polygons twisting against each other |
 | **Spiral Drift** | Coiling arms of stars streaming past |
 | **Kaleido Vortex** | A tunnel whose walls are a slowly morphing fractal |

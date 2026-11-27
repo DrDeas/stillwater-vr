@@ -9,6 +9,7 @@ import { createLotus } from './journeys/lotus.js';
 import { createHall } from './journeys/hall.js';
 import { createFlower } from './journeys/flower.js';
 import { createStarfield } from './journeys/starfield.js';
+import { createRain } from './journeys/rain.js';
 import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire, createLava } from './journeys/walls.js';
 import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons, createPolymorph } from './journeys/solids.js';
@@ -29,7 +30,9 @@ import {
 export const SCENES = [
   { id: 'lake', group: 'Sanctuary', name: 'Stillwater Lake', description: 'Moonlit water, lanterns and a blossom tree' },
 
-  { id: 'stars', group: 'Stars and geometry', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
+  { id: 'stars', group: 'Screensaver classics', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
+  { id: 'rain', group: 'Screensaver classics', name: 'Glyph Rain', description: 'Columns of falling code on every side', create: createRain },
+
   { id: 'prism', group: 'Stars and geometry', name: 'Prism Gates', description: 'Turning rings of light, one inside another', create: createPrism },
   { id: 'spiral', group: 'Stars and geometry', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },
   { id: 'vortex', group: 'Stars and geometry', name: 'Kaleido Vortex', description: 'A tunnel of ever-shifting fractal walls', create: createKaleido },
