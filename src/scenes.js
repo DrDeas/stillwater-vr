@@ -16,6 +16,7 @@ import {
   createFarm, createAmalfi, createLavender, createWaterfall, createOrbital,
 } from './places/nature.js';
 import { createFestival, createArcade as createGlassArcade, createAntigua, createCanal } from './places/cities.js';
+import { PHOTOS, createPhotoPlace, createDropPlace } from './places/photos.js';
 import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire, createLava } from './journeys/walls.js';
 import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons, createPolymorph } from './journeys/solids.js';
@@ -51,6 +52,11 @@ export const SCENES = [
   { id: 'glassarcade', group: 'Cityscapes', name: 'Glass Arcade', description: 'A grand gallery under an iron-and-glass dome', place: createGlassArcade },
   { id: 'antigua', group: 'Cityscapes', name: 'Antigua Arch', description: 'A cobbled colonial street, a clock arch, a volcano', place: createAntigua },
   { id: 'canal', group: 'Cityscapes', name: 'Canal at Dusk', description: 'Lamplit quays and tall houses along still water', place: createCanal },
+
+  // Photographs turned into 3D by SHARP (see src/places/photos.js). The first is a slot for a
+  // file dropped onto the page; the rest come from the PHOTOS manifest.
+  { id: 'photo', group: 'Photo places', name: 'Your Photo', description: 'Drop a SHARP .ply onto the page to step inside it', place: createDropPlace },
+  ...PHOTOS.map((p) => ({ id: p.id, group: 'Photo places', name: p.name, description: p.description || 'A photograph you can lean into', place: () => createPhotoPlace(p) })),
 
   { id: 'stars', group: 'Screensaver classics', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
   { id: 'rain', group: 'Screensaver classics', name: 'Glyph Rain', description: 'Columns of falling code on every side', create: createRain },

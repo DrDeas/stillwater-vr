@@ -45,6 +45,18 @@ Streets to stroll down.
 | **Antigua Arch** | A cobbled colonial street, a yellow clock arch, a volcano beyond |
 | **Canal at Dusk** | Lamplit quays and tall houses along still water, boats rocking |
 
+**Photo places**
+
+Your own photographs, turned into 3D and shown so that your eyes sit where the camera was.
+You can look around and lean about a metre in any direction; further than that a single
+photo has nothing to show.
+
+| | |
+|---|---|
+| **Your Photo** | Whatever splat file you last dropped onto the page |
+
+See [Adding photo places](#adding-photo-places).
+
 **Screensaver classics**
 
 | | |
@@ -245,13 +257,47 @@ To add your own, drop files in `assets/audio/` and add an entry:
 
 Use recordings that loop seamlessly; switching soundscapes crossfades over a few seconds.
 
+## Adding photo places
+
+Photo places are made with Apple's [SHARP](https://github.com/apple/ml-sharp) model, which
+turns one photograph into a 3D Gaussian splat. It runs on your own computer (Apple
+Silicon Macs included); nothing is uploaded.
+
+```bash
+sharp predict -i photo.jpg -o out/
+```
+
+That writes `out/photo.ply`. To look at it, open Stillwater in a desktop browser and drag
+the file onto the page. It opens as **Your Photo** and stays until you reload.
+
+To keep one, and to see it in a headset (where there is nothing to drag), put the file in
+`assets/splats/` and add a line to the manifest in `src/places/photos.js`:
+
+```js
+{ id: 'photo-garden', name: 'Back Garden', description: 'The garden in June', url: 'assets/splats/garden.ply' },
+```
+
+Optional settings on an entry: `radius` (how far you may wander, in metres; default 1),
+`yaw` (turn the picture, in degrees) and `scale`.
+
+Things to know:
+
+- Use an ordinary photograph, not a 360° panorama. SHARP assumes a normal lens.
+- A SHARP `.ply` is about 66 MB and 1.2 million splats. That is fine on a computer and
+  heavy for a standalone headset.
+- The SHARP model is licensed by Apple for non-commercial research use only.
+
+Splats are drawn with [Spark](https://sparkjs.dev) (vendored in `vendor/`, MIT licence),
+which is fetched only when a photo place is opened.
+
 ## How it is built
 
 - [three.js](https://threejs.org) (vendored in `vendor/`), plain ES modules, WebXR.
 - The lake is a true mirror: the world is drawn a second time flipped through the
   waterline and a translucent rippling surface is laid over it. This is cheap and
   stereo-correct, which keeps standalone headsets at full frame rate.
-- Everything is procedural (geometry, sky, noise, sound) so there are no assets to download.
+- Everything is procedural (geometry, sky, noise, sound) so there are no assets to download,
+  apart from any photo places you add yourself.
 
 ```
 index.html            page shell
