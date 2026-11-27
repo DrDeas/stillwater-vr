@@ -14,6 +14,13 @@ import { STRUCTURE_FRAG } from './fractals.js';
 //   base   where its cluster sits in the cell
 //   o      the offset it took at each level of the fractal
 //   s      its size [x, y, z]
+//
+// One rule keeps every scene clean: blocks may touch but never pass through
+// each other. Each level's stretch is therefore computed from the level
+// below it (a group must be at least as far from its neighbours as it is
+// wide), and blocks only ever shrink from their full size. Overlapping
+// blocks are what make a structure like this shimmer and tear.
+//
 // A scene's `morph` GLSL sets:
 //   f      vec3: how far each level's steps are stretched (1 = the true fractal)
 //   g      vec3: how much the box itself swells
@@ -168,8 +175,11 @@ export function createBreathingSponge() {
     carve: 1,
     wall: 15,
     morph: /* glsl */ `
-    f = vec3(1.07 + 0.09 * sin(track * 0.12 - t * 0.6), 1.0 + 0.15 * sin(track * 0.2 + t * 0.8), 1.0);
-    g = vec3(0.72 + 0.4 * wave(t * 1.0 - length(aO1.xy) * 0.45 - track * 0.16));
+    float gg = 0.6 + 0.38 * wave(t * 1.0 - length(aO1.xy) * 0.45 - track * 0.16);
+    float f2 = 1.0 + 0.1 * wave(track * 0.2 + t * 0.8);                        // blocks are 2 wide, 2 * f2 apart
+    float f1 = (4.0 * f2 + 2.0) / 6.0 + 0.01 + 0.06 * wave(track * 0.12 - t * 0.6);
+    f = vec3(f1, f2, 1.0);
+    g = vec3(gg);
     `,
   });
 }
@@ -186,12 +196,17 @@ export function createUnfoldingDust() {
   return morphing(boxes, {
     cell: 10.5,
     cells: 23,
+    seam: 0.05,
     carve: 1,
     morph: /* glsl */ `
     float u = wave(t * 0.45 + track * 0.11 + seed * 6.28318);
     float s1 = smoothstep(0.05, 0.55, u), s2 = smoothstep(0.4, 0.95, u);
-    f = vec3(s1 * 1.25, s2 * 1.35, 0.0);
-    g = vec3(mix(mix(4.2, 2.0, s1), 1.0, s2));            // one block, then eight, then sixty-four
+    // Closed up, the sixty-four cubes sit shoulder to shoulder as one block;
+    // then the eight groups part, then the cubes within each group.
+    float f2 = 0.505 + 0.78 * s2;
+    float f1 = (0.9 * f2 + 0.45) / 2.2 + 0.004 + 0.4 * s1;
+    f = vec3(f1, f2, 0.0);
+    g = vec3(1.0 - 0.12 * s2 * wave(t * 0.9 + seed * 20.0));
     `,
   });
 }
@@ -202,18 +217,22 @@ export function createUnfoldingDust() {
 // ---------------------------------------------------------------------------
 export function createBloomingJacks() {
   const boxes = [];
-  ringOf(9.4).forEach(([x, y], c) => {
-    for (const it of grow(JACK, [2.7, 0.9])) boxes.push({ base: [x, y, 0], o: it.o, s: [0.9, 0.9, 0.9], hue: c * 0.03 + (it.last[0] || it.last[1] || it.last[2] ? 0.12 : 0), seed: c / 8 });
+  ringOf(8.6).forEach(([x, y], c) => {
+    for (const it of grow(JACK, [1.8, 0.6])) boxes.push({ base: [x, y, 0], o: it.o, s: [0.6, 0.6, 0.6], hue: c * 0.03 + (it.last[0] || it.last[1] || it.last[2] ? 0.12 : 0), seed: c / 8 });
   });
   return morphing(boxes, {
-    cell: 7.5,
-    cells: 32,
-    wall: 14.5,
+    cell: 8,
+    cells: 30,
+    wall: 14,
+    seam: 0.04,
     carve: 1,
     morph: /* glsl */ `
     float ph = t * 0.6 + track * 0.14 + seed * 6.28318;
-    f = vec3(0.35 + 1.0 * wave(ph), 0.3 + 1.1 * wave(ph * 1.6 + 1.0), 0.0);
-    g = vec3(0.75 + 0.6 * wave(ph + 2.0));
+    float gg = 0.62 + 0.36 * wave(ph + 2.0);
+    float f2 = gg * 1.02 + 0.3 * wave(ph * 1.6 + 1.0);                         // arms clear the hub
+    float f1 = (1.2 * f2 + 0.6 * gg) / 1.8 * 1.02 + 0.25 * wave(ph);           // jacks clear each other
+    f = vec3(f1, f2, 0.0);
+    g = vec3(gg);
     `,
   });
 }
@@ -234,22 +253,28 @@ export function createPyramidHall() {
     const world = (st) => [0, 1, 2].map((k) => u[k] * st[0] + v[k] * st[1] + inward[k] * st[2]);
     const sizes = levels === 3 ? [unit * 2, unit, unit / 2] : [unit, unit / 2];
     for (const it of grow(TIER, sizes)) {
-      boxes.push({ base: [-inward[0] * dist, -inward[1] * dist, zOff], o: it.o.map(world), s: [unit, unit, unit], hue, seed, level: it.last[2] > 0 ? 1 : 0 });
+      const o = it.o.map(world);
+      if (levels === 2) o.unshift([0, 0, 0]); // line the levels up with the three-level pyramids
+      boxes.push({ base: [-inward[0] * dist, -inward[1] * dist, zOff], o, s: [unit, unit, unit], hue, seed, level: it.last[2] > 0 ? 1 : 0 });
     }
   };
   [[1, 0, 0], [-1, 0, 0], [0, 1, 0], [0, -1, 0]].forEach((inw, c) => place(inw, 7.4, UNIT_SIZE, 3, c * 0.05, c / 4, 0));
   // broader, simpler pyramids fill the diagonals between them, half a cell further along
   const D = Math.SQRT1_2;
-  [[D, D, 0], [-D, D, 0], [D, -D, 0], [-D, -D, 0]].forEach((inw, c) => place(inw, 9.2, 1.6, 2, 0.3 + c * 0.05, 0.5 + c / 4, 4));
+  [[D, D, 0], [-D, D, 0], [D, -D, 0], [-D, -D, 0]].forEach((inw, c) => place(inw, 9.6, 1.2, 2, 0.3 + c * 0.05, 0.5 + c / 4, 4.25));
   return morphing(boxes, {
-    cell: 8,
-    cells: 30,
+    cell: 8.5,
+    cells: 28,
     carve: 1,
-    wall: 12,
+    wall: 12.5,
     morph: /* glsl */ `
     float ph = t * 0.55 + track * 0.13 + seed * 6.28318;
-    f = vec3(1.0 + 0.22 * sin(ph), 1.0 + 0.3 * sin(ph + 1.2), 1.0 + 0.4 * sin(ph + 2.4));
-    g = vec3(0.8 + 0.35 * wave(ph * 1.3 + level * 1.5));
+    float gg = 0.7 + 0.3 * wave(ph * 1.3);
+    float f3 = gg + 0.02 + 0.3 * wave(ph + 2.4);                               // blocks within a small pyramid
+    float f2 = (f3 + gg) * 0.5 + 0.02 + 0.2 * wave(ph + 1.2);                  // small pyramids within a large
+    float f1 = (2.0 * f2 + f3 + gg) * 0.25 + 0.02 + 0.15 * wave(ph);
+    f = vec3(f1, f2, f3);
+    g = vec3(gg);
     `,
   });
 }
@@ -269,27 +294,34 @@ export function createCarpetGates() {
     seam: 0.05,
     morph: /* glsl */ `
     float ph = t * 0.5 + cellId * 0.45;
-    f = vec3(1.0 + 0.07 * sin(ph), 1.0 + 0.12 * sin(ph + 1.5), 1.0 + 0.18 * sin(ph + 3.0));
-    g = vec3(vec2(0.55 + 0.6 * wave(t * 0.9 - length(aO1.xy + aO2.xy) * 0.25 + cellId * 0.5)), 1.0);
+    float f3 = 1.0 + 0.15 * wave(ph + 3.0);
+    float f2 = f3 + 0.02 + 0.12 * wave(ph + 1.5);
+    float f1 = (2.0 * f2 + f3) / 3.0 + 0.02 + 0.08 * wave(ph);
+    f = vec3(f1, f2, f3);
+    // tiles shrink away from their neighbours, opening the weave; never wider than their spacing
+    g = vec3(vec2(f3 * (0.5 + 0.48 * wave(t * 0.9 - length(aO1.xy + aO2.xy) * 0.25 + cellId * 0.5))), 1.0);
     roll = cellId * 0.13 + 0.35 * sin(t * 0.18 + cellId * 0.2);
     `,
   });
 }
 
 // ---------------------------------------------------------------------------
-// Corner Reef: a cube sprouts a smaller cube from each of its eight corners,
-// and each of those sprouts eight more. The buds push out and sink back in.
+// Corner Reef: a cube carries a smaller cube on each of its eight corners,
+// and each of those carries more. The buds float out and settle back.
 // ---------------------------------------------------------------------------
 export function createCornerReef() {
   const boxes = [];
   ringOf(8.8).forEach(([x, y], c) => {
     const base = [x, y, 0];
     const seed = c / 8;
-    boxes.push({ base, o: [], s: [3, 3, 3], level: 0, hue: c * 0.03, seed });
+    boxes.push({ base, o: [], s: [2.4, 2.4, 2.4], level: 0, hue: c * 0.03, seed });
     for (const a of CORNERS) {
-      const o1 = a.map((v) => v * 1.5);
-      boxes.push({ base, o: [o1], s: [1.5, 1.5, 1.5], level: 1, hue: c * 0.03 + 0.15, seed });
-      for (const b of CORNERS) boxes.push({ base, o: [o1, b.map((v) => v * 0.75)], s: [0.75, 0.75, 0.75], level: 2, hue: c * 0.03 + 0.3, seed });
+      const o1 = a.map((v) => v * 1.2);
+      boxes.push({ base, o: [o1], s: [1.2, 1.2, 1.2], level: 1, hue: c * 0.03 + 0.15, seed });
+      for (const b of CORNERS) {
+        if (b.every((v, i) => v === -a[i])) continue; // no bud grows back into its parent
+        boxes.push({ base, o: [o1, b.map((v) => v * 0.6)], s: [0.6, 0.6, 0.6], level: 2, hue: c * 0.03 + 0.3, seed });
+      }
     }
   });
   return morphing(boxes, {
@@ -298,8 +330,10 @@ export function createCornerReef() {
     carve: 1,
     morph: /* glsl */ `
     float ph = t * 0.5 + track * 0.12 + seed * 6.28318;
-    f = vec3(0.25 + 1.05 * wave(ph), 0.2 + 1.15 * wave(ph * 1.5 + 0.8), 0.0);
-    g = vec3(level < 0.5 ? 0.85 + 0.25 * wave(ph + 3.14) : 0.7 + 0.55 * wave(ph * 1.2 + level));
+    float g0 = 0.85 + 0.15 * wave(ph + 3.14), g1 = 0.7 + 0.3 * wave(ph * 1.2 + 1.0), g2 = 0.7 + 0.3 * wave(ph * 1.2 + 2.0);
+    // each bud rests corner to corner on its parent, then floats out and settles back
+    f = vec3(g0 + 0.5 * g1 + 0.03 + 0.5 * wave(ph), g1 + 0.5 * g2 + 0.03 + 0.5 * wave(ph * 1.5 + 0.8), 0.0);
+    g = vec3(level < 0.5 ? g0 : (level < 1.5 ? g1 : g2));
     `,
   });
 }

@@ -13,6 +13,7 @@ import { mulberry32, fbm, ridged } from '../world/noise.js';
 //   });
 
 // Colours are used exactly as written (these shaders output them directly).
+const BODY = 0.25; // the visitor's own radius, metres
 const C = (v) => (v instanceof THREE.Color ? v : new THREE.Color().setHex(v, THREE.LinearSRGBColorSpace));
 const { lerp, clamp } = THREE.MathUtils;
 /** Smooth 0..1 ramp as x goes from a to b. Works in either direction (a may be greater than b). */
@@ -245,6 +246,15 @@ export function place(opts, build) {
     group.add(dome);
 
     const parts = { lit: [], glow: [] };
+    // Solid things the visitor cannot walk through. Recorded automatically
+    // as shapes are added; pass { solid: false } to leave one out.
+    const obstacles = [];
+    let inMoving = 0;
+    const solid = (ob, o = {}) => {
+      if (inMoving || o.solid === false || Math.abs(o.rx || 0) > 0.3 || Math.abs(o.rz || 0) > 0.3) return;
+      if (Math.hypot(ob.x, ob.z) > (opts.radius ?? 60) + 8) return; // out of reach anyway
+      obstacles.push(ob);
+    };
     const updaters = [];
     let lamps = 0;
     const m4 = new THREE.Matrix4();
@@ -265,10 +275,13 @@ export function place(opts, build) {
       sun,
       group,
       // --- solids: y is always the base of the shape
-      box: (x, y, z, sx, sy, sz, color, o) => put(new THREE.BoxGeometry(sx, sy, sz).translate(0, sy / 2, 0), x, y, z, color, o),
-      cyl: (x, y, z, rTop, rBot, h, color, o = {}) => put(new THREE.CylinderGeometry(rTop, rBot, h, o.seg || 8).translate(0, h / 2, 0), x, y, z, color, o),
-      cone: (x, y, z, r, h, color, o = {}) => put(new THREE.ConeGeometry(r, h, o.seg || 7).translate(0, h / 2, 0), x, y, z, color, o),
-      ball: (x, y, z, r, color, o = {}) => put(new THREE.IcosahedronGeometry(r, o.detail ?? 1).scale(1, o.sy ?? 1, o.sz ?? 1), x, y, z, color, o),
+      box: (x, y, z, sx, sy, sz, color, o) => {
+        solid({ x, z, hw: sx / 2, hd: sz / 2, ry: o?.ry || 0, base: y, top: y + sy }, o);
+        put(new THREE.BoxGeometry(sx, sy, sz).translate(0, sy / 2, 0), x, y, z, color, o);
+      },
+      cyl: (x, y, z, rTop, rBot, h, color, o = {}) => (Math.max(rTop, rBot) >= 0.1 && solid({ x, z, r: Math.max(rTop, rBot), base: y, top: y + h }, o), put(new THREE.CylinderGeometry(rTop, rBot, h, o.seg || 8).translate(0, h / 2, 0), x, y, z, color, o)),
+      cone: (x, y, z, r, h, color, o = {}) => (solid({ x, z, r: r * 0.5, base: y, top: y + h }, o), put(new THREE.ConeGeometry(r, h, o.seg || 7).translate(0, h / 2, 0), x, y, z, color, o)),
+      ball: (x, y, z, r, color, o = {}) => (solid({ x, z, r: r * 0.8, base: y - r * (o.sy ?? 1), top: y + r * (o.sy ?? 1) }, o), put(new THREE.IcosahedronGeometry(r, o.detail ?? 1).scale(1, o.sy ?? 1, o.sz ?? 1), x, y, z, color, o)),
       /** A gabled roof: ridge runs along local z. */
       gable: (x, y, z, sx, h, sz, color, o) => {
         const a = sx / 2, b = sz / 2;
@@ -329,6 +342,7 @@ export function place(opts, build) {
           p.setXYZ(i, p.getX(i) * f, p.getY(i) * f, p.getZ(i) * f);
         }
         g.scale(s * (0.8 + rand() * 0.6), s * (0.5 + rand() * 0.5), s * (0.8 + rand() * 0.6));
+        solid({ x, z, r: s * 0.8, base: y - s * 0.6, top: y + s * 0.5 });
         put(g, x, y - s * 0.2, z, color, { ry: rand() * 6.28, jitter: 0.08 });
       },
       /** A small building: walls, gabled roof, and glowing or dark windows on the front. */
@@ -445,7 +459,9 @@ export function place(opts, build) {
         const saved = { lit: parts.lit, glow: parts.glow };
         parts.lit = [];
         parts.glow = [];
+        inMoving++;
         fn();
+        inMoving--;
         const g = new THREE.Group();
         if (parts.lit.length) g.add(new THREE.Mesh(merge(parts.lit), lit));
         if (parts.glow.length) g.add(new THREE.Mesh(merge(parts.glow), glow));
@@ -466,7 +482,26 @@ export function place(opts, build) {
 
     return {
       group,
-      ground: { height, radius: opts.radius ?? 60 },
+      ground: {
+        height,
+        radius: opts.radius ?? 60,
+        /** Is there something solid standing at (x, z), for someone on the ground there? */
+        blocked(x, z) {
+          const g = height(x, z);
+          for (const ob of obstacles) {
+            // things underfoot (a deck, a low step) and things overhead (a roof, a kite) do not block
+            if (ob.top < g + 0.6 || ob.base > g + 1.9) continue;
+            const dx = x - ob.x, dz = z - ob.z;
+            if (ob.r !== undefined) {
+              if (dx * dx + dz * dz < (ob.r + BODY) * (ob.r + BODY)) return true;
+            } else {
+              const c = Math.cos(ob.ry), s = Math.sin(ob.ry);
+              if (Math.abs(dx * c - dz * s) < ob.hw + BODY && Math.abs(dx * s + dz * c) < ob.hd + BODY) return true;
+            }
+          }
+          return false;
+        },
+      },
       spawn: opts.spawn ?? [0, 0, 0],
       update(dt, t, head) {
         dome.position.set(head.x, 0, head.z);

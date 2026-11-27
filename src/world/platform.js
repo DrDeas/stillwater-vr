@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { litMaterial, merge, paint, faceted, glowSprites, shared } from './common.js';
 import { mulberry32 } from './noise.js';
-import { PLATFORM, ISLAND } from './terrain.js';
+import { PLATFORM, ISLAND, LAKE_SOLIDS } from './terrain.js';
 
 // The meditation platform: a stone disc resting on the lake, a cushion at its
 // heart, four lanterns at its rim and stepping stones leading to the island.
@@ -33,6 +33,7 @@ export function createPlatform() {
     lampGeo.push(paint(at(new THREE.BoxGeometry(0.2, 0.24, 0.2), 0.87), new THREE.Color(1.0, 0.6, 0.24)));
     const p = new THREE.Vector3(lx, y + 0.87, lz);
     shared.uLampPos.value[k].copy(p);
+    LAKE_SOLIDS.push({ x: lx, z: lz, r: 0.24 });
     glows.push({ pos: p, size: 1.15, color: new THREE.Color(0.6, 0.3, 0.1), flicker: 1 });
     glows.push({ pos: p, size: 0.3, color: new THREE.Color(0.9, 0.6, 0.3), flicker: 1 });
   }

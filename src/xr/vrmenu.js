@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { state, actions } from '../state.js';
+import { state, actions, isFavourite, toggleFavourite } from '../state.js';
 import { SOUNDSCAPES } from '../audio/soundscapes.js';
 import { SCENES } from '../scenes.js';
 
@@ -22,9 +22,9 @@ const ENTRIES = [];
     ENTRIES.push({ scene: s });
   }
 }
-function flow(rows) {
+function flow(rows, entries = ENTRIES) {
   const cols = [[]];
-  for (const e of ENTRIES) {
+  for (const e of entries) {
     let col = cols[cols.length - 1];
     if (col.length >= rows || (e.heading && col.length >= rows - 1)) cols.push((col = []));
     col.push(e);
@@ -34,7 +34,7 @@ function flow(rows) {
 let ROWS = Math.ceil(ENTRIES.length / COLS);
 while (flow(ROWS).length > COLS) ROWS++;
 const COLUMNS = flow(ROWS);
-const H = Math.max(1000, 60 + ROWS * CELL_H + 300);
+const H = Math.max(1000, 110 + ROWS * CELL_H + 300);
 const SIZE_H = (0.72 * H) / 1000; // metres
 const STEEP = 0.6; // |gaze.y| beyond which the visitor is treated as lying back
 const SIZE_W = (SIZE_H * W) / H;
@@ -244,10 +244,28 @@ export class VRMenu {
     // scenes, by category
     const COL_W = (W - 120) / 2;
     const rows = ROWS;
-    const top = 44;
+    const top = 96;
+    heading('SCENE', 46, 52);
+    // top right: show everything, or only the scenes you have starred
+    button('favonly', W - 40 - 470, 18, 470, 62, () => ((this.favOnly = !this.favOnly), this.draw()), (hov) => {
+      g.fillStyle = this.favOnly ? 'rgba(255, 215, 106, 0.26)' : hov ? 'rgba(255, 255, 255, 0.16)' : 'rgba(255, 255, 255, 0.07)';
+      roundRect(g, W - 40 - 470, 18, 470, 62, 22);
+      g.fill();
+      drawStar(g, W - 40 - 430, 49, 15, true);
+      g.fillStyle = '#f2f6ff';
+      g.font = '500 28px system-ui, sans-serif';
+      g.fillText(this.favOnly ? 'Showing favorites' : 'Show favorites only', W - 40 - 400, 51);
+    });
+    const favs = SCENES.filter((sc) => isFavourite('scene', sc.id));
+    const columns = this.favOnly ? flow(rows, [{ heading: 'Favorites' }, ...favs.map((scene) => ({ scene }))]) : COLUMNS;
+    if (this.favOnly && !favs.length) {
+      g.fillStyle = 'rgba(214, 226, 255, 0.7)';
+      g.font = '400 30px system-ui, sans-serif';
+      g.fillText('No favorites yet. Select the star beside a scene to add it.', 46, top + 110);
+    }
     const cellW = (W - 80 - (COLS - 1) * 14) / COLS;
     const cellH = CELL_H;
-    COLUMNS.forEach((col, c) => {
+    columns.forEach((col, c) => {
       const x = 40 + c * (cellW + 14);
       col.forEach((entry, r) => {
         const y = top + r * cellH;
@@ -260,13 +278,17 @@ export class VRMenu {
         }
         const it = entry.scene;
         const selected = state.get('scene') === it.id;
+        const fav = isFavourite('scene', it.id);
+        // the star is its own target, registered first so it wins over the row
+        button(`fav:${it.id}`, x + cellW - 50, y, 50, h, () => toggleFavourite('scene', it.id), () => {});
         button(`scene:${it.id}`, x, y, cellW, h, () => state.set('scene', it.id), (hov) => {
           g.fillStyle = selected ? 'rgba(120, 180, 255, 0.30)' : hov ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
           roundRect(g, x, y, cellW, h, 14);
           g.fill();
           g.fillStyle = selected ? '#ffffff' : '#e6edff';
           g.font = `${selected ? 600 : 500} 29px system-ui, sans-serif`;
-          g.fillText(it.name, x + 20, y + h / 2 + 2, cellW - 36);
+          g.fillText(it.name, x + 20, y + h / 2 + 2, cellW - 74);
+          drawStar(g, x + cellW - 26, y + h / 2, 12, fav, prevHover.includes(`fav:${it.id}`));
         });
       });
     });
@@ -275,9 +297,12 @@ export class VRMenu {
     const sy = top + rows * cellH + 50;
     heading('SOUNDSCAPE', 64, sy - 26);
     const sw = (W - 80 - (SOUNDSCAPES.length - 1) * 14) / SOUNDSCAPES.length;
-    SOUNDSCAPES.forEach((it, n) => {
+    // favourites first
+    const sounds = [...SOUNDSCAPES].sort((a, b) => isFavourite('sound', b.id) - isFavourite('sound', a.id));
+    sounds.forEach((it, n) => {
       const x = 40 + n * (sw + 14);
       const selected = state.get('soundscape') === it.id;
+      button(`favsound:${it.id}`, x + sw - 64, sy, 64, 66, () => toggleFavourite('sound', it.id), () => {});
       button(`soundscape:${it.id}`, x, sy, sw, 66, () => state.set('soundscape', it.id), (hov) => {
         g.fillStyle = selected ? 'rgba(120, 180, 255, 0.30)' : hov ? 'rgba(255, 255, 255, 0.15)' : 'rgba(255, 255, 255, 0.05)';
         roundRect(g, x, sy, sw, 66, 20);
@@ -285,8 +310,9 @@ export class VRMenu {
         g.fillStyle = '#f2f6ff';
         g.font = '500 30px system-ui, sans-serif';
         g.textAlign = 'center';
-        g.fillText(it.name, x + sw / 2, sy + 35, sw - 30);
+        g.fillText(it.name, x + sw / 2, sy + 35, sw - 140);
         g.textAlign = 'left';
+        drawStar(g, x + sw - 34, sy + 33, 14, isFavourite('sound', it.id), prevHover.includes(`favsound:${it.id}`));
       });
     });
 
@@ -346,6 +372,25 @@ export class VRMenu {
     this.hits = hits;
     this.hover = prevHover.map((id) => (id === 'panel' ? 'panel' : id ? hits.find((b) => b.id === id) || null : null));
     this.texture.needsUpdate = true;
+  }
+}
+
+/** A five-pointed star: gold when on, an outline when off. */
+function drawStar(g, cx, cy, r, on, hover = false) {
+  g.beginPath();
+  for (let i = 0; i < 10; i++) {
+    const a = -Math.PI / 2 + (i * Math.PI) / 5;
+    const rr = i % 2 ? r * 0.45 : r;
+    g[i ? 'lineTo' : 'moveTo'](cx + Math.cos(a) * rr, cy + Math.sin(a) * rr);
+  }
+  g.closePath();
+  if (on) {
+    g.fillStyle = '#ffd76a';
+    g.fill();
+  } else {
+    g.strokeStyle = hover ? '#ffd76a' : 'rgba(214, 226, 255, 0.45)';
+    g.lineWidth = 2.5;
+    g.stroke();
   }
 }
 

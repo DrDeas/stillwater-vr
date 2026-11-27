@@ -233,6 +233,46 @@ input[type='range'] {
   accent-color: var(--accent);
 }
 
+.star {
+  padding: 0.1rem 0.3rem;
+  border: 0;
+  background: none;
+  font-size: 1.05rem;
+  line-height: 1;
+  color: var(--ink-soft);
+  transition: color 0.2s, transform 0.2s;
+}
+
+.star:hover {
+  color: #ffd76a;
+  transform: scale(1.15);
+}
+
+.star[aria-pressed='true'] {
+  color: #ffd76a;
+}
+
+.chip-wrap {
+  display: inline-flex;
+  align-items: center;
+}
+
+.scene-card {
+  position: relative;
+  display: flex;
+}
+
+.scene-card .scene {
+  flex: 1;
+  padding-right: 2.2rem;
+}
+
+.scene-card .star {
+  position: absolute;
+  top: 0.35rem;
+  right: 0.3rem;
+}
+
 .chip.round {
   padding: 0.3rem 0.7rem;
   font-size: 1.1rem;

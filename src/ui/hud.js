@@ -1,4 +1,4 @@
-import { state, actions } from '../state.js';
+import { state, actions, isFavourite, toggleFavourite } from '../state.js';
 import { SOUNDSCAPES } from '../audio/soundscapes.js';
 import { SCENES } from '../scenes.js';
 
@@ -15,8 +15,24 @@ export function createHud({ onBegin, onEnterVR }) {
   const vrButtons = [...document.querySelectorAll('[data-enter-vr]')];
   const vrNote = $('vr-note');
 
-  // --- soundscape chips
+  const star = (kind, id, label) => {
+    const b = document.createElement('button');
+    b.className = 'star';
+    b.type = 'button';
+    b.dataset.kind = kind;
+    b.dataset.id = id;
+    b.addEventListener('click', (e) => {
+      e.stopPropagation();
+      toggleFavourite(kind, b.dataset.id || id);
+    });
+    b.dataset.label = label;
+    return b;
+  };
+
+  // --- soundscape chips, each with a star; favourites come first
   for (const s of SOUNDSCAPES) {
+    const wrap = document.createElement('span');
+    wrap.className = 'chip-wrap';
     const b = document.createElement('button');
     b.className = 'chip';
     b.type = 'button';
@@ -24,25 +40,19 @@ export function createHud({ onBegin, onEnterVR }) {
     b.title = s.description || '';
     b.dataset.id = s.id;
     b.addEventListener('click', () => state.set('soundscape', s.id));
-    chips.appendChild(b);
+    wrap.append(b, star('sound', s.id, s.name));
+    chips.appendChild(wrap);
   }
 
   // --- scene picker: the bar shows the current scene; the full list opens above it
   const picker = $('scene-picker');
   const sceneList = $('scenes');
   const current = $('scene-current');
-  const sceneButtons = [];
-  let lastGroup = null;
-  let grid = null;
-  for (const s of SCENES) {
-    if (s.group !== lastGroup) {
-      const h = document.createElement('h2');
-      h.textContent = s.group;
-      grid = document.createElement('div');
-      grid.className = 'scene-grid';
-      sceneList.append(h, grid);
-      lastGroup = s.group;
-    }
+  const currentStar = star('scene', '', '');
+  current.after(currentStar);
+  const card = (s) => {
+    const wrap = document.createElement('div');
+    wrap.className = 'scene-card';
     const b = document.createElement('button');
     b.className = 'scene';
     b.type = 'button';
@@ -54,15 +64,55 @@ export function createHud({ onBegin, onEnterVR }) {
       state.set('scene', s.id);
       openPicker(false);
     });
-    grid.appendChild(b);
-    sceneButtons.push(b);
+    wrap.append(b, star('scene', s.id, s.name));
+    return wrap;
+  };
+  // favourites get their own group at the top
+  const favHead = document.createElement('h2');
+  favHead.textContent = 'Favorites';
+  const favGrid = document.createElement('div');
+  favGrid.className = 'scene-grid';
+  sceneList.append(favHead, favGrid);
+  let lastGroup = null;
+  let grid = null;
+  for (const s of SCENES) {
+    if (s.group !== lastGroup) {
+      const h = document.createElement('h2');
+      h.textContent = s.group;
+      grid = document.createElement('div');
+      grid.className = 'scene-grid';
+      sceneList.append(h, grid);
+      lastGroup = s.group;
+    }
+    grid.appendChild(card(s));
   }
+  let shownFavs = null;
+  const syncFavourites = () => {
+    const favs = SCENES.filter((s) => isFavourite('scene', s.id));
+    const key = favs.map((s) => s.id).join();
+    if (key !== shownFavs) {
+      shownFavs = key;
+      favGrid.replaceChildren(...favs.map(card));
+      favHead.hidden = favGrid.hidden = favs.length === 0;
+    }
+    for (const b of document.querySelectorAll('.star')) {
+      const id = b === currentStar ? state.get('scene') : b.dataset.id;
+      const name = b === currentStar ? (SCENES.find((sc) => sc.id === id) || SCENES[0]).name : b.dataset.label;
+      const on = isFavourite(b.dataset.kind, id);
+      if (b === currentStar) b.dataset.id = id;
+      b.textContent = on ? '\u2605' : '\u2606';
+      b.setAttribute('aria-pressed', String(on));
+      b.setAttribute('aria-label', `${on ? 'Remove' : 'Add'} ${name} ${on ? 'from' : 'to'} favorites`);
+      b.title = on ? 'Remove from favorites' : 'Add to favorites';
+    }
+    for (const wrap of chips.children) wrap.style.order = isFavourite('sound', wrap.firstChild.dataset.id) ? 0 : 1;
+  };
   const openPicker = (open) => {
     // sit just above the bar, however tall the bar is on this screen
     if (open) picker.style.bottom = `${window.innerHeight - hud.getBoundingClientRect().top + 10}px`;
     picker.classList.toggle('hidden', !open);
     current.setAttribute('aria-expanded', String(open));
-    if (open) sceneButtons.find((b) => b.dataset.id === state.get('scene'))?.focus();
+    if (open) sceneList.querySelector(`.scene[data-id="${state.get('scene')}"]`)?.focus();
   };
   current.addEventListener('click', () => openPicker(picker.classList.contains('hidden')));
   window.addEventListener('keydown', (e) => e.key === 'Escape' && openPicker(false));
@@ -75,8 +125,9 @@ export function createHud({ onBegin, onEnterVR }) {
   $('scene-next').addEventListener('click', () => step(1));
 
   const sync = () => {
-    for (const b of chips.children) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('soundscape')));
-    for (const b of sceneButtons) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('scene')));
+    syncFavourites();
+    for (const wrap of chips.children) wrap.firstChild.setAttribute('aria-pressed', String(wrap.firstChild.dataset.id === state.get('soundscape')));
+    for (const b of sceneList.querySelectorAll('.scene')) b.setAttribute('aria-pressed', String(b.dataset.id === state.get('scene')));
     current.textContent = (SCENES.find((sc) => sc.id === state.get('scene')) || SCENES[0]).name;
     volume.value = String(Math.round(state.get('volume') * 100));
     breath.setAttribute('aria-pressed', String(state.get('breath')));

@@ -1,7 +1,7 @@
 import * as THREE from 'three';
 import { litMaterial, merge, paint, faceted, polarGrid, glowSprites, shared, MOON_DIR } from './common.js';
 import { mulberry32, fbm } from './noise.js';
-import { ISLAND, PLATFORM, islandHeight } from './terrain.js';
+import { ISLAND, PLATFORM, islandHeight, LAKE_SOLIDS } from './terrain.js';
 
 // A mossy islet carrying a blossom tree that sheds a slow drift of petals,
 // plus the weathered rocks scattered across the lake.
@@ -224,7 +224,11 @@ export function createIsland() {
   // --- rocks: around the island shore and scattered across the lake
   const rocks = [];
   const moonXZ = new THREE.Vector2(MOON_DIR.x, MOON_DIR.z).normalize();
-  const place = (x, z, size, sink) => rocks.push(rock(rand, size).translate(x, -size * sink, z));
+  const place = (x, z, size, sink) => {
+    rocks.push(rock(rand, size).translate(x, -size * sink, z));
+    if (size > 0.45) LAKE_SOLIDS.push({ x, z, r: size * 0.75 });
+  };
+  LAKE_SOLIDS.push({ x: ISLAND.x - 0.3, z: ISLAND.z + 0.3, r: 0.45 }); // the tree
   for (let i = 0; i < 9; i++) {
     const a = rand() * 6.28;
     const r = ISLAND.r * (0.78 + rand() * 0.3);

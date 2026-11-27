@@ -158,6 +158,15 @@ VR makes you queasy, sit down or return to the lake.
 flashes or strobes, but if you are sensitive to such patterns, or begin to feel dizzy
 or unwell, look away and return to Stillwater Lake.
 
+**Favorites.** Select the star beside any scene or soundscape to mark it as a favorite.
+Favorite scenes get their own group at the top of the scene list (in VR, use *Show
+favorites only*), favorite soundscapes move to the front, and the star in the bar marks
+the scene you are in. Favorites are remembered on the device.
+
+**Solid things are solid.** In the places you cannot walk, glide or teleport through
+buildings, trees, rocks, posts or railings, or up cliffs and steep mountainsides; you
+slide along them instead. Low things underfoot and things overhead do not block you.
+
 **Sitting or lying down.** A journey points wherever you are looking when it starts:
 level if you are sitting or standing, straight up if you are lying on your back, and
 along your gaze if you are reclined. If you change position, look where you want to

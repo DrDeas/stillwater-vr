@@ -372,7 +372,7 @@ export const createFarm = place(
     // fences, hay bales, trees
     for (let i = -20; i <= 20; i += 2.5) {
       k.box(i, y, 4, 0.14, 1.1, 0.14, 0xe8e2d4);
-      if (i < 20) for (const h of [0.45, 0.85]) k.box(i + 1.25, y + h, 4, 2.5, 0.09, 0.07, 0xe8e2d4);
+      if (i < 20 && i !== 0) for (const h of [0.45, 0.85]) k.box(i + 1.25, y + h, 4, 2.5, 0.09, 0.07, 0xe8e2d4); // one bay left open as a gate
     }
     scatter(k, 26, 70, (x, z) => Math.hypot(x, z + 10) > 24 && k.cyl(x, hills(x, z) + 0.75, z, 0.75, 0.75, 1.5, 0xd8b85a, { rz: Math.PI / 2, ry: k.rand() * 3, seg: 12 }));
     scatter(k, 60, 150, (x, z) => Math.hypot(x, z + 10) > 26 && k.rand() < 0.6 && k.tree(x, hills(x, z), z, 1.2 + k.rand() * 0.9));
@@ -537,9 +537,28 @@ export const createWaterfall = place(
     k.water({ level: 0, size: 200, deep: 0x0f5a5c, calm: 0.5 });
 
     // the fall: a sheet of water whose streaks run downward
-    const TOP = ground(0, FALL_Z - 5);
+    // the fall: a ribbon of water laid over the rock from the very top of the
+    // hill down to the pool, its streaks running downhill
+    const HEAD = -47, FOOT = -18, ROWS = 70, COLS = 6;
+    const fpos = [], fuv = [], fidx = [];
+    for (let r = 0; r <= ROWS; r++) {
+      const z = HEAD + (r / ROWS) * (FOOT - HEAD);
+      for (let c = 0; c <= COLS; c++) {
+        const x = (c / COLS - 0.5) * 7;
+        fpos.push(x, Math.max(ground(x, z), 0) + 0.35, z);
+        fuv.push(c / COLS, (1 - r / ROWS) * 2.2);
+      }
+      if (r < ROWS) for (let c = 0; c < COLS; c++) {
+        const i = r * (COLS + 1) + c;
+        fidx.push(i, i + COLS + 1, i + 1, i + 1, i + COLS + 1, i + COLS + 2);
+      }
+    }
+    const fgeo = new THREE.BufferGeometry();
+    fgeo.setAttribute('position', new THREE.Float32BufferAttribute(fpos, 3));
+    fgeo.setAttribute('uv', new THREE.Float32BufferAttribute(fuv, 2));
+    fgeo.setIndex(fidx);
     const fall = new THREE.Mesh(
-      new THREE.PlaneGeometry(7, TOP + 2, 1, 1),
+      fgeo,
       new THREE.ShaderMaterial({
         uniforms: { uTime: shared.uTime, uNoise: shared.uNoise },
         vertexShader: 'varying vec2 vUv; void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
@@ -557,15 +576,14 @@ void main() {
         side: THREE.DoubleSide,
       })
     );
-    fall.position.set(0, (TOP + 2) / 2 - 1, FALL_Z + 2.2);
     k.group.add(fall);
-    k.motes({ count: 500, box: [-6, 0, FALL_Z + 0.5, 12, 7, 7], color: 0xffffff, size: 0.5, drift: [0, 0.5, 0.35], sway: 0.6, additive: true });
+    k.motes({ count: 500, box: [-6, 0, FOOT - 3.5, 12, 7, 8], color: 0xffffff, size: 0.5, drift: [0, 0.5, 0.35], sway: 0.6, additive: true });
     k.motes({ count: 0 + 120, box: [-14, 0.3, -18, 28, 6, 30], color: 0xfff6c0, size: 0.05, drift: [0.05, 0.02, 0.04], sway: 0.8, twinkle: 1, additive: true });
 
     // jungle: palms, broad trees, ferns and boulders
     scatter(k, 190, 60, (x, z) => {
       const y = ground(x, z);
-      if (pool(x, z) > 0.02 || Math.hypot(x, z - 16) < 3.5) return;
+      if (pool(x, z) > 0.02 || Math.hypot(x, z - 16) < 3.5 || (Math.abs(x) < 5.5 && z < -14)) return; // keep the fall clear
       if (y > 12) { if (k.rand() < 0.5) k.tree(x, y, z, 1.4 + k.rand(), [0x2f7a3c, 0x3f8f46, 0x25683a]); return; }
       const r = k.rand();
       if (r < 0.35) k.palm(x, y, z, 0.9 + k.rand() * 0.6);
@@ -573,7 +591,7 @@ void main() {
       else for (let f = 0; f < 6; f++) k.box(x, y, z, 0.3, 0.04, 1.5, 0x3f9a4a, { ry: (f / 6) * TAU, rx: -0.6, jitter: 0.12 }); // a fern
     });
     scatter(k, 26, 16, (x, z) => pool(x, z) > 0.05 && pool(x, z) < 0.8 && k.rock(x, 0.1, z, 0.5 + k.rand() * 1.1, 0x5a5e58), 0, -8);
-    for (let i = 0; i < 7; i++) k.rock((k.rand() - 0.5) * 8, 0.2, FALL_Z + 3 + k.rand() * 2, 0.8 + k.rand(), 0x4a5048);
+    for (let i = 0; i < 7; i++) k.rock((k.rand() - 0.5) * 8, 0.2, FOOT - 1.5 + k.rand() * 2, 0.8 + k.rand(), 0x4a5048);
     return (x, z) => Math.max(ground(x, z), 0);
   }
 );

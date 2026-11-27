@@ -11,6 +11,13 @@ export function islandHeight(x, z) {
   return ISLAND.h * Math.pow(1 - d * d, 1.3) - 0.1;
 }
 
+/** Solid things at the lake: filled in as the scene is built. [{ x, z, r }] */
+export const LAKE_SOLIDS = [];
+export function lakeBlocked(x, z) {
+  for (const s of LAKE_SOLIDS) if ((x - s.x) ** 2 + (z - s.z) ** 2 < (s.r + 0.25) ** 2) return true;
+  return false;
+}
+
 /** Height the visitor stands at: platform, island, or the water surface. */
 export function groundHeight(x, z) {
   if (Math.hypot(x, z) < PLATFORM.r) return PLATFORM.y;

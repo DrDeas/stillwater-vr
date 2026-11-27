@@ -2,7 +2,7 @@
 // the audio engine. Persists to localStorage when available.
 
 const KEY = 'stillwater.settings.v2';
-const defaults = { scene: 'lake', soundscape: 'lakeside', volume: 0.7, breath: false };
+const defaults = { scene: 'lake', soundscape: 'lakeside', volume: 0.7, breath: false, favScenes: [], favSounds: [] };
 
 function load() {
   try {
@@ -38,3 +38,11 @@ export const state = {
     return () => listeners.delete(fn);
   },
 };
+
+/** Favourites: `kind` is 'scene' or 'sound'. */
+const favKey = (kind) => (kind === 'sound' ? 'favSounds' : 'favScenes');
+export const isFavourite = (kind, id) => (state.get(favKey(kind)) || []).includes(id);
+export function toggleFavourite(kind, id) {
+  const list = state.get(favKey(kind)) || [];
+  state.set(favKey(kind), list.includes(id) ? list.filter((v) => v !== id) : [...list, id]);
+}

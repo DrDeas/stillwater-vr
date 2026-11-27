@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { groundHeight, WORLD_RADIUS } from '../world/terrain.js';
+import { groundHeight, lakeBlocked, WORLD_RADIUS } from '../world/terrain.js';
 import { actions } from '../state.js';
 
 // Moving through the sanctuary in a headset.
@@ -26,7 +26,7 @@ export class Locomotion {
     this.camera = camera;
     this.menu = menu;
     this.enabled = true; // false during journeys: no teleport or gliding
-    this.ground = { height: groundHeight, radius: WORLD_RADIUS }; // swapped when the scene changes
+    this.ground = { height: groundHeight, radius: WORLD_RADIUS, blocked: lakeBlocked }; // swapped when the scene changes
     this.aiming = null;
     this.hit = null;
     this.snapReady = true;
@@ -160,6 +160,7 @@ export class Locomotion {
       vel.y -= GRAVITY * dt;
     }
     if (hit && Math.hypot(hit.x, hit.z) > this.ground.radius) hit = null;
+    if (hit && !this.#open(hit.x, hit.z)) hit = null; // not into a wall, a tree or a rock
     this.arc.geometry.setDrawRange(0, n);
     this.arc.geometry.attributes.position.needsUpdate = true;
     this.arc.visible = true;
@@ -224,6 +225,23 @@ export class Locomotion {
     if (this.aiming) this.#updateArc(this.aiming);
   }
 
+  /** Nothing solid stands at (x, z). */
+  #open(x, z) {
+    return !this.ground.blocked || !this.ground.blocked(x, z);
+  }
+
+  /** May the visitor, standing at `from`, move by (dx, dz)? */
+  #canStep(from, dx, dz) {
+    const len = Math.hypot(dx, dz);
+    if (len < 1e-6) return false;
+    if (!this.#open(from.x, from.z)) return true; // somehow inside something: always allow a way out
+    if (!this.#open(from.x + dx, from.z + dz)) return false;
+    // too steep to climb: a cliff face, a quay wall, a mountainside
+    const reach = 0.4 / len;
+    const rise = this.ground.height(from.x + dx * reach, from.z + dz * reach) - this.ground.height(from.x, from.z);
+    return rise < 0.6;
+  }
+
   /** Glide relative to where the visitor is looking (strafe, forward in [-1, 1]). */
   glide(strafe, forward, dt, speed = GLIDE_SPEED) {
     if (!this.enabled) return;
@@ -232,9 +250,19 @@ export class Locomotion {
     if (fwd.lengthSq() < 1e-4) return;
     fwd.normalize();
     const p = this.rig.position;
-    p.x += (fwd.x * forward - fwd.z * strafe) * speed * dt;
-    p.z += (fwd.z * forward + fwd.x * strafe) * speed * dt;
-    const head = this.camera.getWorldPosition(new THREE.Vector3());
+    const here = this.camera.getWorldPosition(new THREE.Vector3());
+    let dx = (fwd.x * forward - fwd.z * strafe) * speed * dt;
+    let dz = (fwd.z * forward + fwd.x * strafe) * speed * dt;
+    // Solid things stop you. Try the full step, then each direction alone so
+    // you slide along a wall instead of sticking to it.
+    if (!this.#canStep(here, dx, dz)) {
+      if (this.#canStep(here, dx, 0)) dz = 0;
+      else if (this.#canStep(here, 0, dz)) dx = 0;
+      else dx = dz = 0;
+    }
+    p.x += dx;
+    p.z += dz;
+    const head = here.set(here.x + dx, here.y, here.z + dz);
     const r = Math.hypot(head.x, head.z);
     if (r > this.ground.radius) {
       const k = this.ground.radius / r;
