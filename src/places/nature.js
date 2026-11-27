@@ -392,7 +392,7 @@ export const createAmalfi = place(
     sky: { zenith: 0x2f7ad8, horizon: 0xcfe8fa, sun: [-0.6, 0.55, 0.3], sunCol: 0xfff6e0, cloud: 0.35, cloudCol: 0xffffff },
     light: { sun: 0xfff2d6, sky: 0xa8c8ec, ground: 0x6a6a60 },
     fog: { col: 0xc4def2, sun: 0xfff4e0, density: 0.0019 },
-    spawn: [-1, 2, -0.5],
+    spawn: [-1, 2, 0.15],
     radius: 6.5,
   },
   (k) => {

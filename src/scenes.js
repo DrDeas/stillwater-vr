@@ -14,6 +14,7 @@ import {
   createDock, createBeach, createChalet, createCabin, createGarden, createAutumn,
   createFarm, createAmalfi, createLavender, createWaterfall, createOrbital,
 } from './places/nature.js';
+import { createFestival, createArcade as createGlassArcade, createAntigua, createCanal } from './places/cities.js';
 import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire, createLava } from './journeys/walls.js';
 import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons, createPolymorph } from './journeys/solids.js';
@@ -44,6 +45,11 @@ export const SCENES = [
   { id: 'lavender', group: 'Sanctuary', name: 'Lavender Hills', description: 'Purple rows at sunrise, balloons adrift', place: createLavender },
   { id: 'waterfall', group: 'Sanctuary', name: 'Waterfall Grotto', description: 'A jungle pool beneath a tall fall', place: createWaterfall },
   { id: 'orbital', group: 'Sanctuary', name: 'Orbital Lounge', description: 'An observation deck above a turning blue world', place: createOrbital },
+
+  { id: 'festival', group: 'Cityscapes', name: 'Festival Street', description: 'A sunlit arcade street under hundreds of paper kites', place: createFestival },
+  { id: 'glassarcade', group: 'Cityscapes', name: 'Glass Arcade', description: 'A grand gallery under an iron-and-glass dome', place: createGlassArcade },
+  { id: 'antigua', group: 'Cityscapes', name: 'Antigua Arch', description: 'A cobbled colonial street, a clock arch, a volcano', place: createAntigua },
+  { id: 'canal', group: 'Cityscapes', name: 'Canal at Dusk', description: 'Lamplit quays and tall houses along still water', place: createCanal },
 
   { id: 'stars', group: 'Screensaver classics', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
   { id: 'rain', group: 'Screensaver classics', name: 'Glyph Rain', description: 'Columns of falling code on every side', create: createRain },
