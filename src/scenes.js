@@ -14,6 +14,7 @@ import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons } from './journeys/solids.js';
 import { createHelix, createSpiro, createBursts, createJelly } from './journeys/particles.js';
 import { createCantor, createJacks, createVault, createPipes, createArcade } from './journeys/fractals.js';
+import { createHorns, createRomanesco, createBullseye, createScales, createCoil } from './journeys/striped.js';
 
 // Scene manifest. The lake is the home scene; every entry with a `create`
 // function is a journey (see src/journeys/). Add one here and it appears in
@@ -51,6 +52,12 @@ export const SCENES = [
   { id: 'slit', group: 'Hypnotic', name: 'Slit-Scan Gate', description: 'Walls of streaming colour meeting at infinity', create: createSlit },
   { id: 'wormhole', group: 'Hypnotic', name: 'Wormhole', description: 'A tube of light that snakes away ahead of you', create: createWormhole },
   { id: 'neon', group: 'Hypnotic', name: 'Neon Horizon', description: 'A glowing grid rolling toward a striped sun', create: createNeon },
+
+  { id: 'horns', group: 'Striped worlds', name: 'Candy Horns', description: 'Curling striped horns crowding in on one great spiral', create: createHorns },
+  { id: 'romanesco', group: 'Striped worlds', name: 'Romanesco', description: 'Cones covered in spirals of smaller cones', create: createRomanesco },
+  { id: 'bullseye', group: 'Striped worlds', name: 'Bullseye Bloom', description: 'Swelling domes ringed like targets', create: createBullseye },
+  { id: 'scales', group: 'Striped worlds', name: 'Dragon Scales', description: 'Overlapping scales that ruffle as you pass', create: createScales },
+  { id: 'coil', group: 'Striped worlds', name: 'Serpent Coil', description: 'Fat striped bodies woven around the tunnel', create: createCoil },
 
   { id: 'gyro', group: 'Forms in motion', name: 'Gyro Rings', description: 'Paired hoops rocking like a gyroscope', create: createGyro },
   { id: 'ribbons', group: 'Forms in motion', name: 'Silk Ribbons', description: 'Bands of colour weaving and twisting around you', create: createRibbons },

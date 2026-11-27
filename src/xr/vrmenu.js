@@ -218,7 +218,7 @@ export class VRMenu {
     // scenes: a grid of names, three across
     const COL_W = (W - 120) / 2;
     heading('SCENE', 64, 62);
-    const COLS = 3;
+    const COLS = SCENES.length > 36 ? 4 : 3;
     const rows = Math.ceil(SCENES.length / COLS);
     const cellW = (W - 80 - (COLS - 1) * 14) / COLS;
     const cellH = Math.min(70, Math.floor(600 / rows));

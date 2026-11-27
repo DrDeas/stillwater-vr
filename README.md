@@ -65,6 +65,20 @@ name opens the full list), or from the panel in VR (grip).
 | **Wormhole** | A tube of light that snakes away ahead of you |
 | **Neon Horizon** | A glowing grid rolling over a valley toward a striped sun |
 
+**Striped worlds**
+
+Tunnels packed wall to wall with solid forms in bold repeating bands of two vivid
+colours and black. You are fully enclosed, and the colourway drifts through five
+pairings as you travel.
+
+| | |
+|---|---|
+| **Candy Horns** | Curling striped horns crowding in from every side on one great spiral |
+| **Romanesco** | Cones covered in spirals of smaller cones, like the vegetable |
+| **Bullseye Bloom** | Swelling domes ringed like targets, large and small |
+| **Dragon Scales** | Overlapping scales laid like roof tiles, ruffling as you pass |
+| **Serpent Coil** | Fat striped bodies woven around the tunnel in both directions |
+
 **Forms in motion**
 
 | | |
@@ -103,6 +117,7 @@ function that returns a group and a speed. Most scenes are a few lines of shader
 one of four small families, each of which handles the endless wrapping for you:
 
 - `fractals.js` — structures assembled from boxes, with glowing edges (Cantor Dust, Hilbert Pipeworks, ...)
+- `striped.js` — tunnels packed with banded solid forms (Candy Horns, Romanesco, ...)
 - `walls.js` — a tube painted by a fragment shader (Hypno Spiral, Stained Glass, ...)
 - `solids.js` — many copies of one 3D shape, placed by a vertex shader (Gyro Rings, Crystal Cavern, ...)
 - `particles.js` — forms drawn in points of light (Double Helix, Jellyfish Deep, ...)
