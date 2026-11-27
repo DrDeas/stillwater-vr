@@ -14,7 +14,10 @@ import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons } from './journeys/solids.js';
 import { createHelix, createSpiro, createBursts, createJelly } from './journeys/particles.js';
 import { createCantor, createJacks, createVault, createPipes, createArcade } from './journeys/fractals.js';
-import { createHorns, createRomanesco, createBullseye, createScales, createCoil } from './journeys/striped.js';
+import {
+  createHorns, createRomanesco, createBullseye, createScales, createCoil,
+  createTidal, createWhirl, createShapeshift, createBudding, createToadstools, createAnemone, createLiving,
+} from './journeys/striped.js';
 
 // Scene manifest. The lake is the home scene; every entry with a `create`
 // function is a journey (see src/journeys/). Add one here and it appears in
@@ -58,6 +61,13 @@ export const SCENES = [
   { id: 'bullseye', group: 'Striped worlds', name: 'Bullseye Bloom', description: 'Swelling domes ringed like targets', create: createBullseye },
   { id: 'scales', group: 'Striped worlds', name: 'Dragon Scales', description: 'Overlapping scales that ruffle as you pass', create: createScales },
   { id: 'coil', group: 'Striped worlds', name: 'Serpent Coil', description: 'Fat striped bodies woven around the tunnel', create: createCoil },
+  { id: 'tidal', group: 'Striped worlds', name: 'Tidal Bloom', description: 'Domes that rise into peaks as waves pass', create: createTidal },
+  { id: 'whirl', group: 'Striped worlds', name: 'Whirlpool Eyes', description: 'Every dome a spinning spiral', create: createWhirl },
+  { id: 'shapeshift', group: 'Striped worlds', name: 'Shapeshifter', description: 'Forms melting between domes and spires', create: createShapeshift },
+  { id: 'budding', group: 'Striped worlds', name: 'Budding Bloom', description: 'Great domes crowned with circling buds', create: createBudding },
+  { id: 'living', group: 'Striped worlds', name: 'Living Bloom', description: 'Bullseyes that drift, merge and part', create: createLiving },
+  { id: 'toadstools', group: 'Striped worlds', name: 'Toadstool Grove', description: 'Striped stalks under opening and closing caps', create: createToadstools },
+  { id: 'anemone', group: 'Striped worlds', name: 'Anemone Garden', description: 'Thousands of slender waving tentacles', create: createAnemone },
 
   { id: 'gyro', group: 'Forms in motion', name: 'Gyro Rings', description: 'Paired hoops rocking like a gyroscope', create: createGyro },
   { id: 'ribbons', group: 'Forms in motion', name: 'Silk Ribbons', description: 'Bands of colour weaving and twisting around you', create: createRibbons },

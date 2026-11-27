@@ -68,7 +68,7 @@ name opens the full list), or from the panel in VR (grip).
 **Striped worlds**
 
 Tunnels packed wall to wall with solid forms in bold repeating bands of two vivid
-colours and black. You are fully enclosed, and the colourway drifts through five
+colours and black. You are fully enclosed, and the colourway drifts through eight
 pairings as you travel.
 
 | | |
@@ -78,6 +78,13 @@ pairings as you travel.
 | **Bullseye Bloom** | Swelling domes ringed like targets, large and small |
 | **Dragon Scales** | Overlapping scales laid like roof tiles, ruffling as you pass |
 | **Serpent Coil** | Fat striped bodies woven around the tunnel in both directions |
+| **Tidal Bloom** | Domes that rise into peaks as waves run down the tunnel, rings pouring outward |
+| **Whirlpool Eyes** | Every dome a spinning spiral, neighbours turning opposite ways |
+| **Shapeshifter** | Forms melting between soft domes and sharp spires |
+| **Budding Bloom** | Great domes crowned with slowly circling smaller domes |
+| **Living Bloom** | Bullseyes that drift across the wall, press together, merge and part |
+| **Toadstool Grove** | Striped stalks under ringed caps that open and close |
+| **Anemone Garden** | Thousands of slender tentacles with waves running root to tip |
 
 **Forms in motion**
 
