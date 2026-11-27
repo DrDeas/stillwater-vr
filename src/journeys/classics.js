@@ -76,8 +76,8 @@ export const createPipeDream = solids({
 // ---------------------------------------------------------------------------
 export const createBubbles = solids({
   geometry: () => new THREE.SphereGeometry(1, 20, 14),
-  count: 300,
-  speed: 1.2,
+  count: 380,
+  speed: 3,
   body: /* glsl */ `
   z = wrapZ(aSeed.z * 240.0, 120.0);
   float ang = aSeed.x * 6.28318 + 0.3 * sin(t * 0.2 + aI);
@@ -94,7 +94,8 @@ export const createBubbles = solids({
 });
 
 // ---------------------------------------------------------------------------
-// Aquarium: bright fish circle you in schools, tails beating, in blue water.
+// Aquarium: you swim forward through blue water, past school after school of
+// bright fish circling beside your path, tails beating.
 // ---------------------------------------------------------------------------
 function fishGeometry() {
   const body = new THREE.OctahedronGeometry(1, 1).scale(1, 0.48, 0.24);
@@ -108,26 +109,30 @@ function fishGeometry() {
 }
 const fishSchool = solids({
   geometry: fishGeometry,
-  count: 420,
-  speed: 0,
+  count: 840,
+  speed: 2.5,
   doubleSided: true,
   seed: (i, rand) => [Math.floor(i / 14) + rand() * 0.06, rand(), rand(), rand()], // fourteen to a school
   body: /* glsl */ `
   float school = floor(aSeed.x);
   float h1 = hash11(school * 1.7 + 2.0), h2 = hash11(school * 3.3 + 5.0), h3 = hash11(school * 7.1 + 1.0);
   float dir = h1 < 0.5 ? 1.0 : -1.0;
-  float r = 4.0 + h2 * 13.0 + (aSeed.y - 0.5) * 2.4;
-  float ang = h3 * 6.28318 + fract(aSeed.x) * 9.0 + dir * t * (0.10 + h1 * 0.12);
-  float yy = (h2 - 0.5) * 16.0 * h3 + (aSeed.z - 0.5) * 2.2 + sin(t * 0.4 + school) * 0.8;
-  float s = 0.32 + h3 * 0.5;
+  // each school circles its own spot beside the route...
+  float ring = 2.0 + h2 * 3.2 + (aSeed.y - 0.5) * 1.6;
+  float ang = h3 * 6.28318 + fract(aSeed.x) * 9.0 + dir * t * (0.25 + h1 * 0.25);
+  float side = hash11(school * 5.9 + 3.0) < 0.5 ? -1.0 : 1.0;
+  vec3 home = vec3(side * (3.6 + ring + hash11(school * 2.3) * 6.0), (hash11(school * 8.7 + 6.0) - 0.5) * 15.0, 0.0);   // above, below and level with you
+  // ...and the spots are strung out ahead, so you swim past school after school
+  z = wrapZ(hash11(school * 4.1 + 9.0) * 240.0, 120.0);
+  float yy = home.y + (aSeed.z - 0.5) * 2.0 + sin(t * 0.4 + school) * 0.8;
+  float s = 0.45 + h3 * 0.6;
   vec3 q = position;
-  q.z += sin(t * 7.0 + aI + q.x * 2.2) * 0.2 * smoothstep(0.4, -1.4, q.x);      // the tail beats
+  q.z += sin(t * 7.0 + aI + q.x * 2.2) * 0.2 * (1.0 - smoothstep(-1.4, 0.4, q.x));      // the tail beats
   vec3 fwd = vec3(-sin(ang), 0.0, cos(ang)) * dir;
-  vec3 side = vec3(cos(ang), 0.0, sin(ang));
-  p = (fwd * q.x + vec3(0.0, q.y, 0.0) + side * q.z) * s + vec3(cos(ang) * r, yy, sin(ang) * r);
-  n = fwd * normal.x + vec3(0.0, normal.y, 0.0) + side * normal.z;
+  vec3 out_ = vec3(cos(ang), 0.0, sin(ang));
+  p = (fwd * q.x + vec3(0.0, q.y, 0.0) + out_ * q.z) * s + vec3(home.x + cos(ang) * ring, yy, z + sin(ang) * ring);
+  n = fwd * normal.x + vec3(0.0, normal.y, 0.0) + out_ * normal.z;
   hue = h1 * 0.9 + t * 0.004;
-  z = 0.0;
   `,
 });
 export function createAquarium() {
@@ -152,17 +157,18 @@ void main() {
     })
   );
   water.frustumCulled = false;
-  j.group.add(water, createMotes({ count: 900, half: 30, inner: 1.5, outer: 26, seed: 61, size: 0.06 }));
+  j.group.add(water, createMotes({ count: 1400, half: 40, inner: 1.5, outer: 26, seed: 61, size: 0.06 }));
   return j;
 }
 
 // ---------------------------------------------------------------------------
-// Fireworks: shells climb, burst and fall across the whole sky around you.
+// Fireworks: you fly through a display, shells climbing and bursting ahead,
+// beside, above and below you, then falling away behind.
 // ---------------------------------------------------------------------------
 const SHELLS = { n: 50, per: 220 };
 export const createFireworks = particles({
   count: SHELLS.n * SHELLS.per,
-  speed: 0,
+  speed: 4,
   build: (i, rand) => {
     const v = [rand() * 2 - 1, rand() * 2 - 1, rand() * 2 - 1];
     const l = Math.hypot(...v) || 1;
@@ -175,14 +181,16 @@ export const createFireworks = particles({
   float shot = floor(clock);                       // each firing lands somewhere new
   float u = fract(clock);
   float ha = hash11(id * 3.1 + shot * 1.7), hb = hash11(id * 5.3 + shot * 2.9), hc = hash11(id * 7.7 + shot * 0.61);
-  float ang = ha * 6.28318;
-  float dist = 20.0 + hb * 24.0;
-  vec3 burst = vec3(cos(ang) * dist, 6.0 + hc * 26.0, sin(ang) * dist);
+  // where along the route this firing bursts (it travels with the scenery, so you fly past it)
+  z = wrapZ(ha * 240.0 + id * 31.0, 120.0);
+  float ang = hb * 6.28318;
+  float dist = 9.0 + hc * 22.0;                    // never closer than this to your path
+  vec3 burst = vec3(cos(ang) * dist, sin(ang) * dist * 0.8 + 4.0, z);
   const float FUSE = 0.16;
   if (u < FUSE) {
     // the shell climbing: every spark rides together
     float k = u / FUSE;
-    p = vec3(burst.x, mix(-14.0, burst.y, 1.0 - (1.0 - k) * (1.0 - k)), burst.z) + aSeed.xyz * 0.12;
+    p = vec3(burst.x, mix(burst.y - 22.0, burst.y, 1.0 - (1.0 - k) * (1.0 - k)), burst.z) + aSeed.xyz * 0.12;
     col = vec3(1.0, 0.8, 0.5) * 0.5;
     size = 0.3;
   } else {
@@ -193,18 +201,17 @@ export const createFireworks = particles({
     col = mix(vec3(1.0), hue, smoothstep(0.0, 0.12, k)) * pow(1.0 - k, 1.6) * (0.75 + 0.25 * sin(t * 30.0 + aSeed.w * 60.0)) * 2.4;
     size = 0.6;
   }
-  z = 0.0;
   `,
 });
 
 // ---------------------------------------------------------------------------
-// Ember Streams: ribbons of glowing sparks swirl around you, each leaving a
-// long fading trail.
+// Ember Streams: you fly among ribbons of glowing sparks that swirl beside
+// your path, each leaving a long fading trail.
 // ---------------------------------------------------------------------------
-const STREAMS = { n: 9, per: 1300 };
+const STREAMS = { n: 14, per: 1100 };
 export const createEmbers = particles({
   count: STREAMS.n * STREAMS.per,
-  speed: 0,
+  speed: 3.5,
   build: (i, rand) => {
     const v = [rand() * 2 - 1, rand() * 2 - 1, rand() * 2 - 1];
     return [Math.floor(i / STREAMS.per), rand(), 0, v[0], v[1], v[2], rand()];
@@ -215,22 +222,24 @@ export const createEmbers = particles({
   float tau = t * 0.42 - age * 4.2 + id * 3.7;              // where the head was when this spark was shed
   float f1 = 0.7 + hash11(id + 1.0) * 0.5, f2 = 0.5 + hash11(id + 2.0) * 0.6, f3 = 0.6 + hash11(id + 3.0) * 0.5;
   vec3 head = vec3(sin(tau * f1 + id) * 9.0 + sin(tau * 0.31) * 3.0, sin(tau * f2 + id * 2.0) * 6.0, cos(tau * f3 + id * 1.3) * 9.0 + cos(tau * 0.23) * 3.0);
-  // never through the middle: push the path out to arm's length and beyond
-  head *= max(1.0, 4.0 / max(length(head), 0.5));
-  p = head + aSeed.xyz * (0.15 + age * 1.5);
-  col = pal(id * 0.11 + tau * 0.04) * pow(1.0 - age, 2.0) * 1.3 + vec3(1.0) * pow(1.0 - age, 12.0) * 0.6;
-  size = 0.1 + age * 0.3;
-  z = 0.0;
+  // never through the middle: push the ribbon out to arm's length and beyond
+  head.xy *= max(1.0, 3.6 / max(length(head.xy), 0.5));
+  // each ribbon lives in its own stretch of the route, which comes to meet you
+  z = wrapZ(id * ${(240 / STREAMS.n).toFixed(2)} + head.z * 1.6, 120.0);
+  p = vec3(head.xy, z) + aSeed.xyz * (0.15 + age * 1.5);
+  col = pal(id * 0.11 + tau * 0.04) * pow(1.0 - age, 2.0) * 1.8 + vec3(1.0) * pow(1.0 - age, 12.0) * 0.8;
+  size = 0.16 + age * 0.42;
   `,
 });
 
 // ---------------------------------------------------------------------------
-// Mystify: glowing polygons glide around you, their corners bouncing off
-// unseen walls, each trailing a fan of fading echoes.
+// Mystify: you fly through a line of glowing polygons, each one's corners
+// bouncing off unseen walls and trailing a fan of fading echoes.
 // ---------------------------------------------------------------------------
 export function createMystify() {
-  const SHAPES = 3, CORNERS = 4, TRAIL = 26;
-  const BOX = new THREE.Vector3(13, 9, 13);
+  const SHAPES = 8, CORNERS = 4, TRAIL = 22;
+  const HALF = 120, GAP = (HALF * 2) / SHAPES; // one polygon to each stretch of the route
+  const BOX = new THREE.Vector3(12, 8.5, 9);
   const rand = mulberry32(73);
   const corners = [];
   for (let i = 0; i < SHAPES * CORNERS; i++) {
@@ -239,7 +248,7 @@ export function createMystify() {
       v: new THREE.Vector3(rand() * 2 - 1, rand() * 2 - 1, rand() * 2 - 1).normalize().multiplyScalar(2.2 + rand() * 1.6),
     });
   }
-  const history = []; // newest first: arrays of corner positions
+  const history = []; // newest first: arrays of corner positions, each within its own box
   const snapshot = () => corners.map((c) => c.p.clone());
   for (let i = 0; i < TRAIL; i++) history.push(snapshot());
 
@@ -252,7 +261,8 @@ export function createMystify() {
   const lines = new THREE.LineSegments(geo, new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, toneMapped: false }));
   lines.frustumCulled = false;
   const group = new THREE.Group();
-  group.add(lines);
+  // drifting motes make the forward motion readable between one polygon and the next
+  group.add(lines, createMotes({ count: 2600, half: HALF, inner: 2, outer: 30, seed: 74, size: 0.07 }));
 
   const c = new THREE.Color();
   let since = 0;
@@ -273,15 +283,19 @@ export function createMystify() {
       history.unshift(snapshot());
     } else history[0] = snapshot();
 
+    const travel = journey.uTravel.value;
     let o = 0;
     for (let s = 0; s < SHAPES; s++) {
+      // where this polygon's box is along the route right now: it comes toward you, passes, and returns far ahead
+      const z = ((((s * GAP + travel + HALF) % (HALF * 2)) + HALF * 2) % (HALF * 2)) - HALF;
+      const far = Math.max(0, 1 - Math.abs(z) / (HALF - BOX.z));
       for (let h = 0; h < TRAIL; h++) {
-        const fade = Math.pow(1 - h / TRAIL, 1.6);
+        const fade = Math.pow(1 - h / TRAIL, 1.6) * Math.sqrt(far);
         c.setHSL((s / SHAPES + t * 0.02) % 1, 0.9, 0.55).multiplyScalar(fade);
         for (let e = 0; e < CORNERS; e++) {
           const a = history[h][s * CORNERS + e];
           const b = history[h][s * CORNERS + ((e + 1) % CORNERS)];
-          pos.set([a.x, a.y, a.z, b.x, b.y, b.z], o * 3);
+          pos.set([a.x, a.y, a.z + z, b.x, b.y, b.z + z], o * 3);
           col.set([c.r, c.g, c.b, c.r, c.g, c.b], o * 3);
           o += 2;
         }
@@ -290,5 +304,5 @@ export function createMystify() {
     geo.attributes.position.needsUpdate = true;
     geo.attributes.color.needsUpdate = true;
   }
-  return { group, speed: 0, update };
+  return { group, speed: 4, update };
 }

@@ -52,11 +52,11 @@ Streets to stroll down.
 | **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
 | **Glyph Rain** | Falling code in depth: a forest of columns of flickering green characters |
 | **Pipe Dream** | Pipes growing through space, turning at right angles, until it fills and starts over |
-| **Mystify** | Gliding polygons whose corners bounce off unseen walls, trailing fans of echoes |
-| **Soap Bubbles** | Iridescent bubbles wobbling slowly upward |
-| **Aquarium** | Schools of bright fish circling you in blue water |
-| **Fireworks** | Shells climbing and bursting across the whole sky |
-| **Ember Streams** | Swirling ribbons of sparks with long fading trails |
+| **Mystify** | A flight through gliding polygons whose corners bounce off unseen walls, trailing fans of echoes |
+| **Soap Bubbles** | A drift forward through iridescent bubbles wobbling upward |
+| **Aquarium** | Swimming forward through blue water past school after school of bright fish |
+| **Fireworks** | A flight through a display, shells bursting ahead, beside, above and below |
+| **Ember Streams** | A flight among swirling ribbons of sparks with long fading trails |
 
 **Cosmic Drift**
 
