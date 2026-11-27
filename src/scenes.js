@@ -10,6 +10,7 @@ import { createHall } from './journeys/hall.js';
 import { createFlower } from './journeys/flower.js';
 import { createStarfield } from './journeys/starfield.js';
 import { createRain } from './journeys/rain.js';
+import { createPipeDream, createBubbles, createAquarium, createFireworks, createEmbers, createMystify } from './journeys/classics.js';
 import {
   createDock, createBeach, createChalet, createCabin, createGarden, createAutumn,
   createFarm, createAmalfi, createLavender, createWaterfall, createOrbital,
@@ -53,6 +54,12 @@ export const SCENES = [
 
   { id: 'stars', group: 'Screensaver classics', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
   { id: 'rain', group: 'Screensaver classics', name: 'Glyph Rain', description: 'Columns of falling code on every side', create: createRain },
+  { id: 'pipes3d', group: 'Screensaver classics', name: 'Pipe Dream', description: 'Pipes growing through space, turn by turn', create: createPipeDream },
+  { id: 'mystify', group: 'Screensaver classics', name: 'Mystify', description: 'Gliding polygons trailing fans of echoes', create: createMystify },
+  { id: 'bubbles', group: 'Screensaver classics', name: 'Soap Bubbles', description: 'Iridescent bubbles wobbling upward', create: createBubbles },
+  { id: 'aquarium', group: 'Screensaver classics', name: 'Aquarium', description: 'Schools of bright fish circling in blue water', create: createAquarium },
+  { id: 'fireworks', group: 'Screensaver classics', name: 'Fireworks', description: 'Shells bursting across the whole sky', create: createFireworks },
+  { id: 'embers', group: 'Screensaver classics', name: 'Ember Streams', description: 'Swirling ribbons of sparks with long trails', create: createEmbers },
 
   { id: 'prism', group: 'Stars and geometry', name: 'Prism Gates', description: 'Turning rings of light, one inside another', create: createPrism },
   { id: 'spiral', group: 'Stars and geometry', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },

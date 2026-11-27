@@ -17,9 +17,33 @@ name opens the full list), or from the panel in VR (grip).
 
 **Sanctuary**
 
+Still places to stand in and wander around.
+
 | | |
 |---|---|
-| **Stillwater Lake** | The home scene: explore it freely |
+| **Stillwater Lake** | The home scene: moonlit water, lanterns and a blossom tree |
+| **Dock at Dusk** | A wooden dock reaching into a still lake under a pink sky |
+| **Sunset Beach** | Warm sand, leaning palms and a low sun over a calm sea |
+| **Mountain Chalet** | A snowbound chalet with lit windows, snow falling |
+| **Quiet Cabin** | A log cabin in a pine clearing at blue hour, a fire going |
+| **Japanese Garden** | A pond, an arched bridge, stone lanterns, maples and a tea pavilion |
+| **Autumn Forest** | A path through tall trees in full colour, leaves drifting down |
+| **Golden Farm** | Striped fields over rolling hills, a red barn and a turning windmill |
+| **Amalfi Terrace** | A pergola terrace on a cliff above pastel houses and blue sea |
+| **Lavender Hills** | Purple rows rolling to the horizon at sunrise, balloons adrift |
+| **Waterfall Grotto** | A jungle pool beneath a tall fall, mist rising |
+| **Orbital Lounge** | An observation deck in orbit above a slowly turning blue world |
+
+**Cityscapes**
+
+Streets to stroll down.
+
+| | |
+|---|---|
+| **Festival Street** | A sunlit arcade street under hundreds of swaying paper kites |
+| **Glass Arcade** | A grand shopping gallery under an iron-and-glass vault and dome |
+| **Antigua Arch** | A cobbled colonial street, a yellow clock arch, a volcano beyond |
+| **Canal at Dusk** | Lamplit quays and tall houses along still water, boats rocking |
 
 **Screensaver classics**
 
@@ -27,6 +51,12 @@ name opens the full list), or from the panel in VR (grip).
 |---|---|
 | **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
 | **Glyph Rain** | Falling code in depth: a forest of columns of flickering green characters |
+| **Pipe Dream** | Pipes growing through space, turning at right angles, until it fills and starts over |
+| **Mystify** | Gliding polygons whose corners bounce off unseen walls, trailing fans of echoes |
+| **Soap Bubbles** | Iridescent bubbles wobbling slowly upward |
+| **Aquarium** | Schools of bright fish circling you in blue water |
+| **Fireworks** | Shells climbing and bursting across the whole sky |
+| **Ember Streams** | Swirling ribbons of sparks with long fading trails |
 
 **Stars and geometry**
 
@@ -117,7 +147,8 @@ pairings as you travel.
 
 ![Spiral Drift](docs/journey.png)
 
-All but the lake are *journeys*: you are carried gently and endlessly forward while the
+The Sanctuary and Cityscape scenes are *places*: you can walk, glide and teleport around
+them as you can at the lake. The rest are *journeys*: you are carried gently and endlessly forward while the
 forms shift in colour and shape over time. They are real 3D geometry, so they have
 depth in a headset. Walking and teleporting are switched off during a journey, and a
 still ring stays at your feet as a fixed reference for comfort. If forward motion in
@@ -132,6 +163,9 @@ level if you are sitting or standing, straight up if you are lying on your back,
 along your gaze if you are reclined. If you change position, look where you want to
 travel and choose **Re-aim path** (in the bar, in the VR panel, or by clicking a
 thumbstick).
+
+To add a place, write a builder with the kit in `src/places/kit.js` (sky, terrain, water,
+simple solids, trees, drifting motes, lamps); `nature.js` and `cities.js` hold the existing ones.
 
 To add a journey, add one line to the manifest in `src/scenes.js` pointing at a
 function that returns a group and a speed. Most scenes are a few lines of shader in
@@ -218,6 +252,7 @@ src/state.js          settings store (scene, soundscape, volume, breathing guide
 src/scenes.js         scene manifest and switching
 src/world/            sky, water, mountains, platform, island + tree, flora, breathing guide
 src/journeys/         forward-flight scenes (one module each) and their shared parts
+src/places/           explorable places: the building kit, sanctuaries and cityscapes
 src/xr/               teleport / glide / snap turn, in-VR settings panel
 src/ui/               screen controls and HUD
 src/audio/            soundscape manifest, audio engine, procedural generators

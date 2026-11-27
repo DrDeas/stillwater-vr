@@ -19,7 +19,7 @@ void main() {
 }
 `;
 
-function particles({ count, half = 120, speed = 4, build, body, extras }) {
+export function particles({ count, half = 120, speed = 4, build, body, extras }) {
   const vert = /* glsl */ `
 attribute vec4 aSeed;
 uniform float uViewH;
