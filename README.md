@@ -58,6 +58,22 @@ Streets to stroll down.
 | **Fireworks** | Shells climbing and bursting across the whole sky |
 | **Ember Streams** | Swirling ribbons of sparks with long fading trails |
 
+**Cosmic Drift**
+
+Flights through the cosmic web: glowing knots joined by filaments, on every side of you,
+undulating, swelling and changing colour as you go.
+
+| | |
+|---|---|
+| **Golden Web** | Amber knots burning white at their hearts, on black |
+| **Violet Tide** | Provinces of teal fire in a violet sea, the border always moving |
+| **Midnight Filaments** | A fine navy lace with yellow sparks where threads meet |
+| **Ember Nebula** | Cold blue lace crossing banks of orange fire |
+| **Aurora Web** | Every colour in turn, sweeping through the web in slow bands |
+| **Pulsar Bloom** | Knots swelling to blossoms and shrinking to sparks |
+| **Dark Matter Storm** | The whole web turning and writhing, indigo shot with lime |
+| **Genesis** | Structure condensing out of a glowing fog and dissolving back into it |
+
 **Stars and geometry**
 
 | | |
@@ -181,6 +197,7 @@ function that returns a group and a speed. Most scenes are a few lines of shader
 one of four small families, each of which handles the endless wrapping for you:
 
 - `morphing.js` — fractals whose levels can slide apart, close up and swell (Unfolding Dust, Carpet Gates, ...)
+- `cosmic.js` — cosmic webs: knots and filaments in points of light, inside painted web layers (Golden Web, Genesis, ...)
 - `fractals.js` — structures assembled from boxes, with glowing edges (Cantor Dust, Hilbert Pipeworks, ...)
 - `striped.js` — tunnels packed with banded solid forms (Candy Horns, Romanesco, ...)
 - `walls.js` — a tube painted by a fragment shader (Hypno Spiral, Stained Glass, ...)
