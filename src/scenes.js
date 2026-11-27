@@ -13,6 +13,7 @@ import { createPlasma, createHypno, createOpArt, createHive, createGlass, create
 import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
 import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons } from './journeys/solids.js';
 import { createHelix, createSpiro, createBursts, createJelly } from './journeys/particles.js';
+import { createCantor, createJacks, createVault, createPipes, createArcade } from './journeys/fractals.js';
 
 // Scene manifest. The lake is the home scene; every entry with a `create`
 // function is a journey (see src/journeys/). Add one here and it appears in
@@ -25,9 +26,15 @@ export const SCENES = [
 
   { id: 'stars', group: 'Stars and geometry', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
   { id: 'prism', group: 'Stars and geometry', name: 'Prism Gates', description: 'Turning rings of light, one inside another', create: createPrism },
-  { id: 'passage', group: 'Stars and geometry', name: 'Fractal Passage', description: 'An endless shaft through a Menger sponge', create: createMenger },
   { id: 'spiral', group: 'Stars and geometry', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },
   { id: 'vortex', group: 'Stars and geometry', name: 'Kaleido Vortex', description: 'A tunnel of ever-shifting fractal walls', create: createKaleido },
+
+  { id: 'passage', group: 'Fractal architecture', name: 'Fractal Passage', description: 'An endless shaft through a Menger sponge', create: createMenger },
+  { id: 'cantor', group: 'Fractal architecture', name: 'Cantor Dust', description: 'Cubes scattered into clusters of clusters', create: createCantor },
+  { id: 'jacks', group: 'Fractal architecture', name: 'Jack Lattice', description: 'Crosses built of crosses, linking overhead', create: createJacks },
+  { id: 'vault', group: 'Fractal architecture', name: 'Snowflake Vault', description: 'A twisting tunnel shaped like a Koch snowflake', create: createVault },
+  { id: 'pipes', group: 'Fractal architecture', name: 'Hilbert Pipeworks', description: 'One endless pipe that fills all of space', create: createPipes },
+  { id: 'arcade', group: 'Fractal architecture', name: 'Branching Arcade', description: 'Forking trees knitting a vault around you', create: createArcade },
 
   { id: 'light', group: 'Light', name: 'Into the Light', description: 'A slow approach toward a radiant source', create: createLight },
   { id: 'lotus', group: 'Light', name: 'Lotus Mandala', description: 'Flowers of light that open as you arrive', create: createLotus },

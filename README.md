@@ -27,9 +27,19 @@ name opens the full list), or from the panel in VR (grip).
 |---|---|
 | **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
 | **Prism Gates** | Nested rings of glowing polygons twisting against each other |
-| **Fractal Passage** | An endless shaft through a Menger sponge |
 | **Spiral Drift** | Coiling arms of stars streaming past |
 | **Kaleido Vortex** | A tunnel whose walls are a slowly morphing fractal |
+
+**Fractal architecture**
+
+| | |
+|---|---|
+| **Fractal Passage** | An endless shaft through a Menger sponge |
+| **Cantor Dust** | Cubes scattered into clusters of clusters, with open lanes between |
+| **Jack Lattice** | Three-armed crosses built of smaller crosses, linking overhead |
+| **Snowflake Vault** | A slowly twisting tunnel whose cross-section is a Koch snowflake |
+| **Hilbert Pipeworks** | One unbroken pipe that fills all of space, with light running along it |
+| **Branching Arcade** | Trees that fork again and again, knitting a vault around the path |
 
 **Light**
 
@@ -92,6 +102,7 @@ To add a journey, add one line to the manifest in `src/scenes.js` pointing at a
 function that returns a group and a speed. Most scenes are a few lines of shader in
 one of four small families, each of which handles the endless wrapping for you:
 
+- `fractals.js` — structures assembled from boxes, with glowing edges (Cantor Dust, Hilbert Pipeworks, ...)
 - `walls.js` — a tube painted by a fragment shader (Hypno Spiral, Stained Glass, ...)
 - `solids.js` — many copies of one 3D shape, placed by a vertex shader (Gyro Rings, Crystal Cavern, ...)
 - `particles.js` — forms drawn in points of light (Double Helix, Jellyfish Deep, ...)
