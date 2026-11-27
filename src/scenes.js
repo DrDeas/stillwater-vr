@@ -8,6 +8,7 @@ import { createLight } from './journeys/light.js';
 import { createLotus } from './journeys/lotus.js';
 import { createHall } from './journeys/hall.js';
 import { createFlower } from './journeys/flower.js';
+import { createStarfield } from './journeys/starfield.js';
 
 // Scene manifest. The lake is the home scene; every entry with a `create`
 // function is a journey (see src/journeys/). Add one here and it appears in
@@ -25,6 +26,7 @@ export const SCENES = [
   { id: 'lotus', name: 'Lotus Mandala', description: 'Flowers of light that open as you arrive', create: createLotus },
   { id: 'hall', name: 'Hall of Light', description: 'An endless vaulted nave of luminous arches', create: createHall },
   { id: 'flower', name: 'Flower of Life', description: 'Turning seals of interlocking circles', create: createFlower },
+  { id: 'stars', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
 ];
 
 const LEVEL_BELOW = THREE.MathUtils.degToRad(28); // gaze lower than this: fly level

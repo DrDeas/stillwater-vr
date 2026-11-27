@@ -25,6 +25,7 @@ Pick a scene from the bar at the bottom of the page, or from the panel in VR (gr
 | **Lotus Mandala** | Great flowers of light that open, ring by ring, as you arrive |
 | **Hall of Light** | An endless vaulted nave of luminous arches over a mirror floor |
 | **Flower of Life** | Turning seals of interlocking circles and star figures |
+| **Starfield** | The classic screensaver in real depth: plain white stars drifting past |
 
 ![Spiral Drift](docs/journey.png)
 
