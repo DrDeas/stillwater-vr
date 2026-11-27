@@ -172,3 +172,72 @@ export const createMoire = wall({
   col = mix(vec3(0.012), mix(vec3(1.0), pal(0.3 * fringe + track * 0.006 + t * 0.02), 0.75), k) * (0.5 + 0.9 * fringe);
   `,
 });
+
+// Lava Lamp: the tunnel is a soft skin that swells into great slow blobs,
+// which rise, lean into each other, merge and sink away. Unlike the painted
+// tunnels above, the wall really moves: the blobs bulge toward you.
+export function createLava() {
+  const HALF = 120;
+  const WALL = 8.2;
+  // how far the skin bulges at each point, 0..1 (shared by both shaders)
+  const FIELD = /* glsl */ `
+float blob(float a, float track, float t) {
+  float b = sin(3.0 * a + track * 0.33 + t * 0.4) * sin(track * 0.21 - t * 0.3 + 2.0 * sin(a))
+          + 0.6 * sin(5.0 * a - track * 0.47 + t * 0.5 + 1.7 * sin(track * 0.1))
+          + 0.5 * sin(2.0 * a + t * 0.25) * cos(track * 0.15 + t * 0.2);
+  return smoothstep(-0.7, 1.3, b);
+}
+`;
+  const vert = /* glsl */ `
+varying vec3 vWall;
+${JOURNEY_GLSL}
+${FIELD}
+void main() {
+  float h = blob(atan(position.y, position.x), position.z - uTravel, uTime);
+  vWall = position;
+  gl_Position = projectionMatrix * modelViewMatrix * vec4(position.xy * (${WALL.toFixed(1)} - h * h * 4.4), position.z, 1.0);
+}
+`;
+  const frag = /* glsl */ `
+varying vec3 vWall;
+${JOURNEY_GLSL}
+${FIELD}
+void main() {
+  float track = vWall.z - uTravel;
+  float h = blob(atan(vWall.y, vWall.x), track, uTime);
+  // contour lines across the blobs, like the layers in warm wax
+  float lines = 0.5 + 0.5 * sin(h * 26.0 - uTime * 0.8);
+  vec3 col = pal(h * 0.7 + track * 0.004 + uTime * 0.02) * (0.3 + 0.7 * h) * (0.55 + 0.45 * lines);
+  col += pal(h * 0.7 + 0.5 + uTime * 0.02) * pow(h, 5.0) * 0.5;
+  gl_FragColor = vec4(col * fadeZ(vWall.z, ${HALF}.0), 1.0);
+}
+`;
+  const AROUND = 96;
+  const SEG = 420;
+  const pos = [];
+  const idx = [];
+  for (let s = 0; s <= SEG; s++) {
+    const z = -HALF + (s / SEG) * HALF * 2;
+    for (let a = 0; a < AROUND; a++) {
+      const th = (a / AROUND) * Math.PI * 2;
+      pos.push(Math.cos(th), Math.sin(th), z);
+    }
+    if (s < SEG)
+      for (let a = 0; a < AROUND; a++) {
+        const p0 = s * AROUND + a;
+        const p1 = s * AROUND + ((a + 1) % AROUND);
+        idx.push(p0, p0 + AROUND, p1, p1, p0 + AROUND, p1 + AROUND);
+      }
+  }
+  const geo = new THREE.BufferGeometry();
+  geo.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+  geo.setIndex(idx);
+  const mesh = new THREE.Mesh(
+    geo,
+    new THREE.ShaderMaterial({ uniforms: { uTravel: journey.uTravel, uTime: journey.uTime }, vertexShader: vert, fragmentShader: frag, side: THREE.DoubleSide })
+  );
+  mesh.frustumCulled = false;
+  const group = new THREE.Group();
+  group.add(mesh);
+  return { group, speed: 3 };
+}

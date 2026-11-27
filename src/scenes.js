@@ -9,9 +9,10 @@ import { createLotus } from './journeys/lotus.js';
 import { createHall } from './journeys/hall.js';
 import { createFlower } from './journeys/flower.js';
 import { createStarfield } from './journeys/starfield.js';
-import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire } from './journeys/walls.js';
+import { createPlasma, createHypno, createOpArt, createHive, createGlass, createTruchet, createMoire, createLava } from './journeys/walls.js';
 import { createNeon, createSlit, createWormhole } from './journeys/planes.js';
-import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons } from './journeys/solids.js';
+import { createGyro, createCubes, createSierpinski, createCrystal, createPillars, createRibbons, createPolymorph } from './journeys/solids.js';
+import { createBreathingSponge, createUnfoldingDust, createBloomingJacks, createPyramidHall, createCarpetGates, createCornerReef } from './journeys/morphing.js';
 import { createHelix, createSpiro, createBursts, createJelly } from './journeys/particles.js';
 import { createCantor, createJacks, createVault, createPipes, createArcade } from './journeys/fractals.js';
 import {
@@ -39,6 +40,12 @@ export const SCENES = [
   { id: 'vault', group: 'Fractal architecture', name: 'Snowflake Vault', description: 'A twisting tunnel shaped like a Koch snowflake', create: createVault },
   { id: 'pipes', group: 'Fractal architecture', name: 'Hilbert Pipeworks', description: 'One endless pipe that fills all of space', create: createPipes },
   { id: 'arcade', group: 'Fractal architecture', name: 'Branching Arcade', description: 'Forking trees knitting a vault around you', create: createArcade },
+  { id: 'sponge', group: 'Fractal architecture', name: 'Breathing Sponge', description: 'A Menger shaft whose holes open and close', create: createBreathingSponge },
+  { id: 'dust', group: 'Fractal architecture', name: 'Unfolding Dust', description: 'Blocks splitting into dust and gathering again', create: createUnfoldingDust },
+  { id: 'bloomjacks', group: 'Fractal architecture', name: 'Blooming Jacks', description: 'Crosses of crosses reaching out and drawing back', create: createBloomingJacks },
+  { id: 'pyramids', group: 'Fractal architecture', name: 'Pyramid Hall', description: 'Pyramids of pyramids reaching in from four walls', create: createPyramidHall },
+  { id: 'carpets', group: 'Fractal architecture', name: 'Carpet Gates', description: 'Sierpinski carpets with widening, closing holes', create: createCarpetGates },
+  { id: 'reef', group: 'Fractal architecture', name: 'Corner Reef', description: 'Cubes budding smaller cubes from every corner', create: createCornerReef },
 
   { id: 'light', group: 'Light', name: 'Into the Light', description: 'A slow approach toward a radiant source', create: createLight },
   { id: 'lotus', group: 'Light', name: 'Lotus Mandala', description: 'Flowers of light that open as you arrive', create: createLotus },
@@ -55,6 +62,8 @@ export const SCENES = [
   { id: 'slit', group: 'Hypnotic', name: 'Slit-Scan Gate', description: 'Walls of streaming colour meeting at infinity', create: createSlit },
   { id: 'wormhole', group: 'Hypnotic', name: 'Wormhole', description: 'A tube of light that snakes away ahead of you', create: createWormhole },
   { id: 'neon', group: 'Hypnotic', name: 'Neon Horizon', description: 'A glowing grid rolling toward a striped sun', create: createNeon },
+  { id: 'lava', group: 'Hypnotic', name: 'Lava Lamp', description: 'Great soft blobs swelling, merging and sinking', create: createLava },
+  { id: 'polymorph', group: 'Hypnotic', name: 'Polymorph', description: 'A shoal of solids melting between diamond, ball and cube', create: createPolymorph },
 
   { id: 'horns', group: 'Striped worlds', name: 'Candy Horns', description: 'Curling striped horns crowding in on one great spiral', create: createHorns },
   { id: 'romanesco', group: 'Striped worlds', name: 'Romanesco', description: 'Cones covered in spirals of smaller cones', create: createRomanesco },

@@ -40,6 +40,12 @@ name opens the full list), or from the panel in VR (grip).
 | **Snowflake Vault** | A slowly twisting tunnel whose cross-section is a Koch snowflake |
 | **Hilbert Pipeworks** | One unbroken pipe that fills all of space, with light running along it |
 | **Branching Arcade** | Trees that fork again and again, knitting a vault around the path |
+| **Breathing Sponge** | The Menger shaft alive: blocks swell and shrink so its holes keep opening and closing |
+| **Unfolding Dust** | Solid blocks split into eight, then sixty-four, drift apart into dust and gather again |
+| **Blooming Jacks** | Crosses made of crosses whose arms reach out and draw back |
+| **Pyramid Hall** | Pyramids built of pyramids reach in from every side, their tiers rising and settling |
+| **Carpet Gates** | You pass through the middle of one Sierpinski carpet after another, holes widening and closing |
+| **Corner Reef** | Cubes that bud smaller cubes from every corner, pushing out and sinking back |
 
 **Light**
 
@@ -64,6 +70,8 @@ name opens the full list), or from the panel in VR (grip).
 | **Slit-Scan Gate** | Four walls of streaming colour meeting at a vanishing point |
 | **Wormhole** | A tube of light that snakes away ahead of you |
 | **Neon Horizon** | A glowing grid rolling over a valley toward a striped sun |
+| **Lava Lamp** | The tunnel wall swells into great soft blobs that merge and sink away |
+| **Polymorph** | A dense shoal of solids melting between diamond, ball and cube |
 
 **Striped worlds**
 
@@ -123,6 +131,7 @@ To add a journey, add one line to the manifest in `src/scenes.js` pointing at a
 function that returns a group and a speed. Most scenes are a few lines of shader in
 one of four small families, each of which handles the endless wrapping for you:
 
+- `morphing.js` — fractals whose levels can slide apart, close up and swell (Unfolding Dust, Carpet Gates, ...)
 - `fractals.js` — structures assembled from boxes, with glowing edges (Cantor Dust, Hilbert Pipeworks, ...)
 - `striped.js` — tunnels packed with banded solid forms (Candy Horns, Romanesco, ...)
 - `walls.js` — a tube painted by a fragment shader (Hypno Spiral, Stained Glass, ...)

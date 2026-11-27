@@ -8,8 +8,12 @@ import { SCENES } from '../scenes.js';
 // so the panel can be opened without any buttons at all.
 
 const W = 1536;
-const H = 1000;
-const SIZE_H = 0.72; // metres
+// The panel grows with the scene list so the names never shrink.
+const COLS = SCENES.length > 36 ? 4 : 3;
+const ROWS = Math.ceil(SCENES.length / COLS);
+const CELL_H = 58;
+const H = Math.max(1000, 92 + ROWS * CELL_H + 310);
+const SIZE_H = (0.72 * H) / 1000; // metres
 const STEEP = 0.6; // |gaze.y| beyond which the visitor is treated as lying back
 const SIZE_W = (SIZE_H * W) / H;
 
@@ -218,10 +222,9 @@ export class VRMenu {
     // scenes: a grid of names, three across
     const COL_W = (W - 120) / 2;
     heading('SCENE', 64, 62);
-    const COLS = SCENES.length > 36 ? 4 : 3;
-    const rows = Math.ceil(SCENES.length / COLS);
+    const rows = ROWS;
     const cellW = (W - 80 - (COLS - 1) * 14) / COLS;
-    const cellH = Math.min(70, Math.floor(600 / rows));
+    const cellH = CELL_H;
     SCENES.forEach((it, n) => {
       // fill down each column so related scenes stay together
       const x = 40 + Math.floor(n / rows) * (cellW + 14);

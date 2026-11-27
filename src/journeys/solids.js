@@ -29,7 +29,7 @@ void main() {
 }
 `;
 
-function solids({ geometry, count, half = 120, speed = 4, body, seed, doubleSided = false }) {
+export function solids({ geometry, count, half = 120, speed = 4, body, seed, doubleSided = false }) {
   const vert = /* glsl */ `
 attribute float aI;
 attribute vec4 aSeed;
@@ -242,3 +242,56 @@ export const createRibbons = solids({
   hue = aI * 0.09 + track * 0.008 + t * 0.012;
   `,
 });
+
+// Polymorph: a dense shoal of solids that never settle on a shape, each one
+// melting between diamond, ball and cube while it swells and turns.
+const polymorphShoal = solids({
+  geometry: () => faceted(new THREE.IcosahedronGeometry(1, 2)),
+  count: 1300,
+  speed: 3.5,
+  body: /* glsl */ `
+  z = wrapZ(aSeed.z * 240.0, 120.0);
+  float track = z - uTravel;
+  float ang = aSeed.x * 6.28318 + track * 0.015;
+  float r = 5.3 + aSeed.y * aSeed.y * 6.2;
+  // one family of shapes: |x|^k + |y|^k + |z|^k = 1.  k=1 diamond, 2 ball, 8 cube
+  float k = exp2(1.5 + 1.5 * sin(t * 0.5 + track * 0.1 + aI * 0.7));
+  vec3 d = normalize(position);
+  vec3 ad = abs(d) + 1e-4;
+  float rad = pow(pow(ad.x, k) + pow(ad.y, k) + pow(ad.z, k), -1.0 / k);
+  vec3 grad = sign(d) * pow(ad * rad, vec3(k - 1.0));
+  float s = (0.8 + aSeed.w * 0.7) * (0.85 + 0.2 * sin(t * 0.9 + aI));
+  mat3 m = rotAxis(normalize(aSeed.xyz - 0.5), t * 0.25 + aI);
+  p = m * (d * rad * s) + vec3(cos(ang) * r, sin(ang) * r, z);
+  n = m * normalize(grad);
+  hue = aSeed.x * 0.35 + track * 0.006 + t * 0.012 + k * 0.03;
+  `,
+});
+
+// Behind the shoal, a wall of slow colour closes the space so the shapes are
+// all there is, in every direction.
+export function createPolymorph() {
+  const j = polymorphShoal();
+  const wall = new THREE.Mesh(
+    new THREE.CylinderGeometry(13, 13, 240, 64, 1, true).rotateX(Math.PI / 2),
+    new THREE.ShaderMaterial({
+      uniforms: { uTravel: journey.uTravel, uTime: journey.uTime },
+      vertexShader: 'varying vec3 vPos; void main() { vPos = position; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }',
+      fragmentShader: /* glsl */ `
+varying vec3 vPos;
+${JOURNEY_GLSL}
+void main() {
+  float track = vPos.z - uTravel;
+  float a = atan(vPos.y, vPos.x);
+  float v = sin(3.0 * a + track * 0.2 + uTime * 0.2) + sin(track * 0.13 - 2.0 * a - uTime * 0.15) + sin(4.0 * a - track * 0.31 + 2.0 * sin(track * 0.07));
+  vec3 col = pal(v * 0.18 + track * 0.006 + uTime * 0.012 + 0.5) * (0.10 + 0.14 * (0.5 + 0.5 * sin(v * 3.0)));
+  gl_FragColor = vec4(col * fadeZ(vPos.z, 120.0), 1.0);
+}
+`,
+      side: THREE.BackSide,
+    })
+  );
+  wall.frustumCulled = false;
+  j.group.add(wall);
+  return j;
+}

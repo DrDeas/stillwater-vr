@@ -41,7 +41,7 @@ void main() {
 }
 `;
 
-const FRAG = /* glsl */ `
+export const STRUCTURE_FRAG = /* glsl */ `
 uniform float uSeam;         // width of the glowing edges, metres
 uniform float uCarve;        // 1 = carve a finer fractal level into each face
 uniform float uPulse;        // strength of light running through the structure
@@ -139,7 +139,7 @@ function structure(boxes, { cell, cells, seam = 0.07, carve = 0, pulse = 0, twis
         uFog: { value: fog || half },
       },
       vertexShader: VERT,
-      fragmentShader: FRAG,
+      fragmentShader: STRUCTURE_FRAG,
     })
   );
   mesh.frustumCulled = false;
