@@ -19,7 +19,12 @@ import * as THREE from 'three';
 //           'three' for a splat that is already y-up.
 
 export const PHOTOS = [
-  // { id: 'photo-garden', name: 'Back Garden', description: 'The garden in June', url: 'assets/splats/garden.ply' },
+  { id: 'photo-halfmoonbay-1', name: 'Half Moon Bay 1', description: 'The coast at Half Moon Bay', url: 'assets/splats/HalfMoonBay1.ply' },
+  { id: 'photo-halfmoonbay-2', name: 'Half Moon Bay 2', description: 'A second view of Half Moon Bay', url: 'assets/splats/HalfMoonBay2.ply' },
+  { id: 'photo-room-1', name: 'Room 1', description: 'A room you can lean into', url: 'assets/splats/Room-1.ply' },
+  { id: 'photo-room-2', name: 'Room 2', description: 'A room you can lean into', url: 'assets/splats/Room-2.ply' },
+  { id: 'photo-room-3', name: 'Room 3', description: 'A room you can lean into', url: 'assets/splats/Room-3.ply' },
+  { id: 'photo-room-4', name: 'Room 4', description: 'A room you can lean into', url: 'assets/splats/Room-4.ply' },
 ];
 
 export const SPLAT_EXTENSIONS = ['.ply', '.spz', '.splat', '.ksplat'];
