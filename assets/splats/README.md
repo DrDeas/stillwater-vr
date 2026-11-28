@@ -1,7 +1,8 @@
 # Photo splats
 
-Put splat files made from your photographs here (`.ply` from `sharp predict`, or `.spz` /
-`.splat` / `.ksplat`), then list each one in `src/places/photos.js`.
+Put splat files made from your photographs here, then list each one in
+`src/places/photos.js`.
 
-A `.ply` straight from SHARP is about 66 MB. GitHub warns above 50 MB and refuses files
-above 100 MB, so compress a splat to `.spz` before committing it if you can.
+Use the compact `.spz` that SHARP writes with `sharp predict --spz` or `sharp app`. A full
+`.ply` is about 66 MB; GitHub's website will not upload files over 25 MB, and git refuses
+files over 100 MB.

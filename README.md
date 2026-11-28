@@ -281,17 +281,21 @@ turns one photograph into a 3D Gaussian splat. It runs on your own computer (App
 Silicon Macs included); nothing is uploaded.
 
 ```bash
-sharp predict -i photo.jpg -o out/
+sharp predict --spz -i photo.jpg -o out/
 ```
 
-That writes `out/photo.ply`. To look at it, open Stillwater in a desktop browser and drag
-the file onto the page. It opens as **Your Photo** and stays until you reload.
+That writes `out/photo.ply` (the full result, about 66 MB) and `out/photo.spz` (a compact
+copy, several times smaller, that looks the same here). SHARP's own app (`sharp app`)
+makes both too, and turns a `.ply` you drop on it into an `.spz`.
 
-To keep one, and to see it in a headset (where there is nothing to drag), put the file in
-`assets/splats/` and add a line to the manifest in `src/places/photos.js`:
+To look at one, open Stillwater in a desktop browser and drag either file onto the page.
+It opens as **Your Photo** and stays until you reload.
+
+To keep one, and to see it in a headset (where there is nothing to drag), put the `.spz`
+in `assets/splats/` and add a line to the manifest in `src/places/photos.js`:
 
 ```js
-{ id: 'photo-garden', name: 'Back Garden', description: 'The garden in June', url: 'assets/splats/garden.ply' },
+{ id: 'photo-garden', name: 'Back Garden', description: 'The garden in June', url: 'assets/splats/garden.spz' },
 ```
 
 Optional settings on an entry: `radius` (how far you may wander, in metres; default 1),
@@ -300,8 +304,8 @@ Optional settings on an entry: `radius` (how far you may wander, in metres; defa
 Things to know:
 
 - Use an ordinary photograph, not a 360° panorama. SHARP assumes a normal lens.
-- A SHARP `.ply` is about 66 MB and 1.2 million splats. That is fine on a computer and
-  heavy for a standalone headset.
+- A photo is about 1.2 million splats. That is fine on a computer and heavy for a
+  standalone headset.
 - The SHARP model is licensed by Apple for non-commercial research use only.
 
 Splats are drawn with [Spark](https://sparkjs.dev) (vendored in `vendor/`, MIT licence),
