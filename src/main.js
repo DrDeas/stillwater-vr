@@ -15,6 +15,7 @@ import { DesktopControls } from './ui/desktop.js';
 import { createHud } from './ui/hud.js';
 import { state, actions } from './state.js';
 import { SceneManager } from './scenes.js';
+import { isSplatFile, openSplatFile } from './places/photos.js';
 
 const EYE_HEIGHT = 1.55; // flat-screen viewing height; a headset reports its own
 
@@ -121,6 +122,16 @@ function onResize() {
   renderer.setSize(window.innerWidth, window.innerHeight);
 }
 window.addEventListener('resize', onResize);
+
+// --- photo places: drop a splat file (from `sharp predict`) anywhere on the page ---
+window.addEventListener('dragover', (e) => e.preventDefault());
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const file = [...(e.dataTransfer?.files || [])].find((f) => isSplatFile(f.name));
+  if (!file) return;
+  openSplatFile(file);
+  state.set('scene', 'photo');
+});
 
 // --- frame loop -------------------------------------------------------------
 const clock = new THREE.Clock();
