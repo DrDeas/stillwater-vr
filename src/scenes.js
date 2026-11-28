@@ -202,6 +202,7 @@ export class SceneManager {
       const [x, z, yaw] = this.place.spawn;
       this.rig.position.set(x, this.place.ground.height(x, z), z);
       this.rig.rotation.y = yaw || 0;
+      this.place.enter?.();
       return;
     }
     if (!def.create) {

@@ -116,15 +116,44 @@ export function createPhotoPlace(def = {}) {
   if (def.url) load(def.url, def.url.split('/').pop());
   else sign.write('Drop a photo splat onto this page', 'A .ply made by “sharp predict” on your computer');
 
-  let lastSeen = -Infinity;
+  // Spark makes its renderer object the first time a splat is drawn. Find it so it can be tuned.
+  let spark = null;
+  const findSpark = () => {
+    let root = group;
+    while (root.parent) root = root.parent;
+    root.traverse((o) => {
+      if (!spark && o.defaultView && typeof o.maxStdDev === 'number') spark = o;
+    });
+    return spark;
+  };
+  let tunedFor = null;
+
+  let arrived = true;
   return {
     group,
     ground: { height: () => 0, radius: def.radius ?? 1 },
     spawn: [0, 0, 0],
     load,
+    /** Called each time the visitor steps into this place. */
+    enter() {
+      arrived = true;
+    },
     update(dt, t, head) {
-      if (t - lastSeen > 0.25) anchor.position.copy(head); // just arrived: put the camera point at the eyes
-      lastSeen = t;
+      // Put the camera point at the eyes once, on arrival. Moving the splat is
+      // costly (every splat is recomputed), so it must never follow the head.
+      if (arrived) anchor.position.copy(head);
+      arrived = false;
+
+      // A headset redraws for two eyes and its wearer never holds still, so there
+      // the splats are drawn a little tighter and re-sorted only after the head
+      // has moved 8 cm rather than 1 cm. From within a metre of the camera point
+      // the back-to-front order barely changes, so this costs nothing visible.
+      if (!mesh || !(spark || findSpark())) return;
+      const inVR = !!spark.renderer?.xr?.isPresenting;
+      if (inVR === tunedFor) return;
+      tunedFor = inVR;
+      spark.maxStdDev = inVR ? Math.sqrt(5) : Math.sqrt(8);
+      spark.defaultView.sortDistance = inVR ? 0.08 : 0.01;
     },
   };
 }
