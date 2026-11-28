@@ -23,6 +23,7 @@ import { createGyro, createCubes, createSierpinski, createCrystal, createPillars
 import { createBreathingSponge, createUnfoldingDust, createBloomingJacks, createPyramidHall, createCarpetGates, createCornerReef } from './journeys/morphing.js';
 import { createHelix, createSpiro, createBursts, createJelly } from './journeys/particles.js';
 import { createCantor, createJacks, createVault, createPipes, createArcade } from './journeys/fractals.js';
+import { createGoldenWeb, createVioletTide, createMidnight, createEmber, createAuroraWeb, createPulsar, createStorm, createGenesis } from './journeys/cosmic.js';
 import {
   createHorns, createRomanesco, createBullseye, createScales, createCoil,
   createTidal, createWhirl, createShapeshift, createBudding, createToadstools, createAnemone, createLiving,
@@ -61,11 +62,20 @@ export const SCENES = [
   { id: 'stars', group: 'Screensaver classics', name: 'Starfield', description: 'The classic drift through a quiet field of stars', create: createStarfield },
   { id: 'rain', group: 'Screensaver classics', name: 'Glyph Rain', description: 'Columns of falling code on every side', create: createRain },
   { id: 'pipes3d', group: 'Screensaver classics', name: 'Pipe Dream', description: 'Pipes growing through space, turn by turn', create: createPipeDream },
-  { id: 'mystify', group: 'Screensaver classics', name: 'Mystify', description: 'Gliding polygons trailing fans of echoes', create: createMystify },
-  { id: 'bubbles', group: 'Screensaver classics', name: 'Soap Bubbles', description: 'Iridescent bubbles wobbling upward', create: createBubbles },
-  { id: 'aquarium', group: 'Screensaver classics', name: 'Aquarium', description: 'Schools of bright fish circling in blue water', create: createAquarium },
-  { id: 'fireworks', group: 'Screensaver classics', name: 'Fireworks', description: 'Shells bursting across the whole sky', create: createFireworks },
-  { id: 'embers', group: 'Screensaver classics', name: 'Ember Streams', description: 'Swirling ribbons of sparks with long trails', create: createEmbers },
+  { id: 'mystify', group: 'Screensaver classics', name: 'Mystify', description: 'A flight through gliding polygons and their echoes', create: createMystify },
+  { id: 'bubbles', group: 'Screensaver classics', name: 'Soap Bubbles', description: 'Drifting forward through rising iridescent bubbles', create: createBubbles },
+  { id: 'aquarium', group: 'Screensaver classics', name: 'Aquarium', description: 'Swimming forward past schools of bright fish', create: createAquarium },
+  { id: 'fireworks', group: 'Screensaver classics', name: 'Fireworks', description: 'A flight through bursting shells on every side', create: createFireworks },
+  { id: 'embers', group: 'Screensaver classics', name: 'Ember Streams', description: 'A flight among swirling ribbons of sparks', create: createEmbers },
+
+  { id: 'goldweb', group: 'Cosmic Drift', name: 'Golden Web', description: 'Amber knots burning white at their hearts', create: createGoldenWeb },
+  { id: 'violet', group: 'Cosmic Drift', name: 'Violet Tide', description: 'Provinces of teal fire in a violet sea', create: createVioletTide },
+  { id: 'midnight', group: 'Cosmic Drift', name: 'Midnight Filaments', description: 'Fine navy lace with yellow sparks', create: createMidnight },
+  { id: 'ember', group: 'Cosmic Drift', name: 'Ember Nebula', description: 'Cold blue lace crossing banks of orange fire', create: createEmber },
+  { id: 'auroraweb', group: 'Cosmic Drift', name: 'Aurora Web', description: 'Every colour in turn, sweeping through the web', create: createAuroraWeb },
+  { id: 'pulsar', group: 'Cosmic Drift', name: 'Pulsar Bloom', description: 'Knots swelling to blossoms and shrinking to sparks', create: createPulsar },
+  { id: 'storm', group: 'Cosmic Drift', name: 'Dark Matter Storm', description: 'The whole web turning and writhing', create: createStorm },
+  { id: 'genesis', group: 'Cosmic Drift', name: 'Genesis', description: 'Structure condensing out of fog and dissolving again', create: createGenesis },
 
   { id: 'prism', group: 'Stars and geometry', name: 'Prism Gates', description: 'Turning rings of light, one inside another', create: createPrism },
   { id: 'spiral', group: 'Stars and geometry', name: 'Spiral Drift', description: 'Coiling arms of stars streaming past', create: createSpiral },
