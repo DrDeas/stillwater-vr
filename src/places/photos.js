@@ -4,27 +4,27 @@ import * as THREE from 'three';
 // SHARP model (https://github.com/apple/ml-sharp), shown so that the visitor's
 // eyes sit where the camera was.
 //
-//   sharp predict -i photo.jpg -o out/      ->  out/photo.ply
+//   sharp predict --spz -i photo.jpg -o out/   ->  out/photo.ply and out/photo.spz
 //
 // To keep one, put the file in assets/splats/ and add a line here. It then
 // shows up in the page bar and the in-VR panel. `.ply`, `.spz`, `.splat` and
-// `.ksplat` files all load.
+// `.ksplat` files all load; prefer the `.spz`, which is several times smaller.
 //
 //   radius  how far the visitor may wander from the camera position, in metres.
 //           A splat from one photo only holds together close to where it was
 //           taken, so keep this small (default 1).
 //   yaw     turn the picture about the vertical axis, in degrees.
 //   scale   SHARP's output is in metres; change this if a scene feels too big or small.
-//   convention  'opencv' (SHARP: x right, y down, z forward; the default) or
-//           'three' for a splat that is already y-up.
+//   convention  'opencv' (x right, y down, z forward) or 'three' (y up). Leave it
+//           out: a SHARP .ply is 'opencv' and an .spz is 'three', as that format requires.
 
 export const PHOTOS = [
-  { id: 'photo-halfmoonbay-1', name: 'Half Moon Bay 1', description: 'The coast at Half Moon Bay', url: 'assets/splats/HalfMoonBay1.ply' },
-  { id: 'photo-halfmoonbay-2', name: 'Half Moon Bay 2', description: 'A second view of Half Moon Bay', url: 'assets/splats/HalfMoonBay2.ply' },
-  { id: 'photo-room-1', name: 'Room 1', description: 'A room you can lean into', url: 'assets/splats/Room-1.ply' },
-  { id: 'photo-room-2', name: 'Room 2', description: 'A room you can lean into', url: 'assets/splats/Room-2.ply' },
-  { id: 'photo-room-3', name: 'Room 3', description: 'A room you can lean into', url: 'assets/splats/Room-3.ply' },
-  { id: 'photo-room-4', name: 'Room 4', description: 'A room you can lean into', url: 'assets/splats/Room-4.ply' },
+  { id: 'photo-halfmoonbay-1', name: 'Half Moon Bay 1', description: 'The coast at Half Moon Bay', url: 'assets/splats/HalfMoonBay1.spz' },
+  { id: 'photo-halfmoonbay-2', name: 'Half Moon Bay 2', description: 'A second view of Half Moon Bay', url: 'assets/splats/HalfMoonBay2.spz' },
+  { id: 'photo-room-1', name: 'Room 1', description: 'A room you can lean into', url: 'assets/splats/Room-1.spz' },
+  { id: 'photo-room-2', name: 'Room 2', description: 'A room you can lean into', url: 'assets/splats/Room-2.spz' },
+  { id: 'photo-room-3', name: 'Room 3', description: 'A room you can lean into', url: 'assets/splats/Room-3.spz' },
+  { id: 'photo-room-4', name: 'Room 4', description: 'A room you can lean into', url: 'assets/splats/Room-4.spz' },
 ];
 
 export const SPLAT_EXTENSIONS = ['.ply', '.spz', '.splat', '.ksplat'];
@@ -76,8 +76,12 @@ export function createPhotoPlace(def = {}) {
   // they are standing, sitting, or at a desk.
   const anchor = new THREE.Group();
   const frame = new THREE.Group(); // converts the file's axes to three.js's
-  if ((def.convention ?? 'opencv') === 'opencv') frame.quaternion.set(1, 0, 0, 0); // half turn about x: y down -> up, z forward -> -z
   frame.scale.setScalar(def.scale ?? 1);
+  const orient = (fileName) => {
+    const convention = def.convention ?? (/\.spz$/i.test(fileName || '') ? 'three' : 'opencv');
+    if (convention === 'opencv') frame.quaternion.set(1, 0, 0, 0); // half turn about x: y down -> up, z forward -> -z
+    else frame.quaternion.identity();
+  };
   anchor.rotation.y = THREE.MathUtils.degToRad(def.yaw ?? 0);
   anchor.add(frame);
   const sign = createSign();
@@ -100,6 +104,7 @@ export function createPhotoPlace(def = {}) {
         mesh.dispose();
       }
       mesh = next;
+      orient(fileName);
       frame.add(mesh);
       sign.hide();
     } catch (err) {
